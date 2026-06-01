@@ -36,7 +36,7 @@ coverage/
 *.sw?
 
 # Prisma generated client
-apps/nest-admin/src/generated/prisma
+apps/api/src/generated/prisma
 
 # Misc
 .temp

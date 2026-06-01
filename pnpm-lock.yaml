@@ -8,7 +8,119 @@ importers:
 
   .: {}
 
-  apps/nest-admin:
+  apps/admin:
+    dependencies:
+      '@ant-design/icons':
+        specifier: ^6.1.0
+        version: 6.2.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@tailwindcss/vite':
+        specifier: ^4.1.18
+        version: 4.3.0(vite@7.3.3(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0))
+      '@tanstack/react-query':
+        specifier: ^5.90.20
+        version: 5.100.14(react@19.2.6)
+      '@types/lodash':
+        specifier: ^4.17.24
+        version: 4.17.24
+      antd:
+        specifier: ^6.3.1
+        version: 6.4.3(luxon@3.7.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      axios:
+        specifier: ^1.13.5
+        version: 1.16.1
+      dayjs:
+        specifier: ^1.11.19
+        version: 1.11.21
+      i18next:
+        specifier: ^25.8.3
+        version: 25.10.10(typescript@5.9.3)
+      lodash:
+        specifier: ^4.17.23
+        version: 4.18.1
+      lucide-react:
+        specifier: ^0.562.0
+        version: 0.562.0(react@19.2.6)
+      motion:
+        specifier: ^12.25.0
+        version: 12.40.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      nprogress:
+        specifier: ^0.2.0
+        version: 0.2.0
+      pubsub-js:
+        specifier: ^1.9.5
+        version: 1.9.5
+      react:
+        specifier: ^19.2.0
+        version: 19.2.6
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.6(react@19.2.6)
+      react-i18next:
+        specifier: ^16.5.4
+        version: 16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
+      react-router:
+        specifier: ^7.12.0
+        version: 7.16.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      react-router-dom:
+        specifier: ^7.12.0
+        version: 7.16.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      uuid:
+        specifier: ^13.0.0
+        version: 13.0.2
+      zustand:
+        specifier: ^5.0.9
+        version: 5.0.14(@types/react@19.2.15)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.39.1
+        version: 9.39.4
+      '@types/node':
+        specifier: ^24.10.1
+        version: 24.12.4
+      '@types/nprogress':
+        specifier: ^0.2.3
+        version: 0.2.3
+      '@types/pubsub-js':
+        specifier: ^1.8.6
+        version: 1.8.6
+      '@types/react':
+        specifier: ^19.2.5
+        version: 19.2.15
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.15)
+      '@vitejs/plugin-react':
+        specifier: ^5.1.1
+        version: 5.2.0(vite@7.3.3(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0))
+      babel-plugin-react-compiler:
+        specifier: ^1.0.0
+        version: 1.0.0
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.4(jiti@2.7.0)
+      eslint-plugin-react-hooks:
+        specifier: ^7.0.1
+        version: 7.1.1(eslint@9.39.4(jiti@2.7.0))
+      eslint-plugin-react-refresh:
+        specifier: ^0.4.24
+        version: 0.4.26(eslint@9.39.4(jiti@2.7.0))
+      globals:
+        specifier: ^16.5.0
+        version: 16.5.0
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.3.0
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.46.4
+        version: 8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      vite:
+        specifier: ^7.2.4
+        version: 7.3.3(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)
+
+  apps/api:
     dependencies:
       '@faker-js/faker':
         specifier: ^10.3.0
@@ -197,118 +309,6 @@ importers:
       typescript-eslint:
         specifier: ^8.20.0
         version: 8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-
-  apps/react-admin:
-    dependencies:
-      '@ant-design/icons':
-        specifier: ^6.1.0
-        version: 6.2.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      '@tailwindcss/vite':
-        specifier: ^4.1.18
-        version: 4.3.0(vite@7.3.3(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0))
-      '@tanstack/react-query':
-        specifier: ^5.90.20
-        version: 5.100.14(react@19.2.6)
-      '@types/lodash':
-        specifier: ^4.17.24
-        version: 4.17.24
-      antd:
-        specifier: ^6.3.1
-        version: 6.4.3(luxon@3.7.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      axios:
-        specifier: ^1.13.5
-        version: 1.16.1
-      dayjs:
-        specifier: ^1.11.19
-        version: 1.11.21
-      i18next:
-        specifier: ^25.8.3
-        version: 25.10.10(typescript@5.9.3)
-      lodash:
-        specifier: ^4.17.23
-        version: 4.18.1
-      lucide-react:
-        specifier: ^0.562.0
-        version: 0.562.0(react@19.2.6)
-      motion:
-        specifier: ^12.25.0
-        version: 12.40.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      nprogress:
-        specifier: ^0.2.0
-        version: 0.2.0
-      pubsub-js:
-        specifier: ^1.9.5
-        version: 1.9.5
-      react:
-        specifier: ^19.2.0
-        version: 19.2.6
-      react-dom:
-        specifier: ^19.2.0
-        version: 19.2.6(react@19.2.6)
-      react-i18next:
-        specifier: ^16.5.4
-        version: 16.6.6(i18next@25.10.10(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
-      react-router:
-        specifier: ^7.12.0
-        version: 7.16.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      react-router-dom:
-        specifier: ^7.12.0
-        version: 7.16.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      uuid:
-        specifier: ^13.0.0
-        version: 13.0.2
-      zustand:
-        specifier: ^5.0.9
-        version: 5.0.14(@types/react@19.2.15)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
-    devDependencies:
-      '@eslint/js':
-        specifier: ^9.39.1
-        version: 9.39.4
-      '@types/node':
-        specifier: ^24.10.1
-        version: 24.12.4
-      '@types/nprogress':
-        specifier: ^0.2.3
-        version: 0.2.3
-      '@types/pubsub-js':
-        specifier: ^1.8.6
-        version: 1.8.6
-      '@types/react':
-        specifier: ^19.2.5
-        version: 19.2.15
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.15)
-      '@vitejs/plugin-react':
-        specifier: ^5.1.1
-        version: 5.2.0(vite@7.3.3(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0))
-      babel-plugin-react-compiler:
-        specifier: ^1.0.0
-        version: 1.0.0
-      eslint:
-        specifier: ^9.39.1
-        version: 9.39.4(jiti@2.7.0)
-      eslint-plugin-react-hooks:
-        specifier: ^7.0.1
-        version: 7.1.1(eslint@9.39.4(jiti@2.7.0))
-      eslint-plugin-react-refresh:
-        specifier: ^0.4.24
-        version: 0.4.26(eslint@9.39.4(jiti@2.7.0))
-      globals:
-        specifier: ^16.5.0
-        version: 16.5.0
-      tailwindcss:
-        specifier: ^4.1.18
-        version: 4.3.0
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-      typescript-eslint:
-        specifier: ^8.46.4
-        version: 8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-      vite:
-        specifier: ^7.2.4
-        version: 7.3.3(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)
 
 packages:
 
@@ -5779,7 +5779,7 @@ snapshots:
   '@jest/console@30.4.1':
     dependencies:
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       chalk: 4.1.2
       jest-message-util: 30.4.1
       jest-util: 30.4.1
@@ -5793,7 +5793,7 @@ snapshots:
       '@jest/test-result': 30.4.1
       '@jest/transform': 30.4.1
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 4.4.0
@@ -5801,7 +5801,7 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       graceful-fs: 4.2.11
       jest-changed-files: 30.4.1
-      jest-config: 30.4.2(@types/node@22.19.19)(ts-node@10.9.2(@types/node@22.19.19)(typescript@5.9.3))
+      jest-config: 30.4.2(@types/node@24.12.4)(ts-node@10.9.2(@types/node@22.19.19)(typescript@5.9.3))
       jest-haste-map: 30.4.1
       jest-message-util: 30.4.1
       jest-regex-util: 30.4.0
@@ -5827,7 +5827,7 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 30.4.1
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       jest-mock: 30.4.1
 
   '@jest/expect-utils@30.4.1':
@@ -5845,7 +5845,7 @@ snapshots:
     dependencies:
       '@jest/types': 30.4.1
       '@sinonjs/fake-timers': 15.4.0
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       jest-message-util: 30.4.1
       jest-mock: 30.4.1
       jest-util: 30.4.1
@@ -5863,7 +5863,7 @@ snapshots:
 
   '@jest/pattern@30.4.0':
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       jest-regex-util: 30.4.0
 
   '@jest/reporters@30.4.1':
@@ -5874,7 +5874,7 @@ snapshots:
       '@jest/transform': 30.4.1
       '@jest/types': 30.4.1
       '@jridgewell/trace-mapping': 0.3.31
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       chalk: 4.1.2
       collect-v8-coverage: 1.0.3
       exit-x: 0.2.2
@@ -5950,7 +5950,7 @@ snapshots:
       '@jest/schemas': 30.4.1
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       '@types/yargs': 17.0.35
       chalk: 4.1.2
 
@@ -6885,16 +6885,16 @@ snapshots:
 
   '@types/bcrypt@6.0.0':
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
 
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
 
   '@types/cookie-parser@1.4.10(@types/express@5.0.6)':
     dependencies:
@@ -6918,7 +6918,7 @@ snapshots:
 
   '@types/express-serve-static-core@5.1.1':
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       '@types/qs': 6.15.1
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -6953,7 +6953,7 @@ snapshots:
   '@types/jsonwebtoken@9.0.10':
     dependencies:
       '@types/ms': 2.1.0
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
 
   '@types/lodash@4.17.24': {}
 
@@ -6971,7 +6971,7 @@ snapshots:
 
   '@types/nodemailer@7.0.11':
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
 
   '@types/nprogress@0.2.3': {}
 
@@ -7011,12 +7011,12 @@ snapshots:
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
 
   '@types/serve-static@2.2.0':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
 
   '@types/stack-utils@2.0.3': {}
 
@@ -7024,7 +7024,7 @@ snapshots:
     dependencies:
       '@types/cookiejar': 2.1.5
       '@types/methods': 1.1.4
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       form-data: 4.0.5
 
   '@types/supertest@6.0.3':
@@ -8549,7 +8549,7 @@ snapshots:
       '@jest/expect': 30.4.1
       '@jest/test-result': 30.4.1
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       chalk: 4.1.2
       co: 4.6.0
       dedent: 1.7.2
@@ -8620,6 +8620,38 @@ snapshots:
       - babel-plugin-macros
       - supports-color
 
+  jest-config@30.4.2(@types/node@24.12.4)(ts-node@10.9.2(@types/node@22.19.19)(typescript@5.9.3)):
+    dependencies:
+      '@babel/core': 7.29.7
+      '@jest/get-type': 30.1.0
+      '@jest/pattern': 30.4.0
+      '@jest/test-sequencer': 30.4.1
+      '@jest/types': 30.4.1
+      babel-jest: 30.4.1(@babel/core@7.29.7)
+      chalk: 4.1.2
+      ci-info: 4.4.0
+      deepmerge: 4.3.1
+      glob: 10.5.0
+      graceful-fs: 4.2.11
+      jest-circus: 30.4.2
+      jest-docblock: 30.4.0
+      jest-environment-node: 30.4.1
+      jest-regex-util: 30.4.0
+      jest-resolve: 30.4.1
+      jest-runner: 30.4.2
+      jest-util: 30.4.1
+      jest-validate: 30.4.1
+      parse-json: 5.2.0
+      pretty-format: 30.4.1
+      slash: 3.0.0
+      strip-json-comments: 3.1.1
+    optionalDependencies:
+      '@types/node': 24.12.4
+      ts-node: 10.9.2(@types/node@22.19.19)(typescript@5.9.3)
+    transitivePeerDependencies:
+      - babel-plugin-macros
+      - supports-color
+
   jest-diff@30.4.1:
     dependencies:
       '@jest/diff-sequences': 30.4.0
@@ -8644,7 +8676,7 @@ snapshots:
       '@jest/environment': 30.4.1
       '@jest/fake-timers': 30.4.1
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       jest-mock: 30.4.1
       jest-util: 30.4.1
       jest-validate: 30.4.1
@@ -8652,7 +8684,7 @@ snapshots:
   jest-haste-map@30.4.1:
     dependencies:
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -8692,7 +8724,7 @@ snapshots:
   jest-mock@30.4.1:
     dependencies:
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       jest-util: 30.4.1
 
   jest-pnp-resolver@1.2.3(jest-resolve@30.4.1):
@@ -8726,7 +8758,7 @@ snapshots:
       '@jest/test-result': 30.4.1
       '@jest/transform': 30.4.1
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       chalk: 4.1.2
       emittery: 0.13.1
       exit-x: 0.2.2
@@ -8755,7 +8787,7 @@ snapshots:
       '@jest/test-result': 30.4.1
       '@jest/transform': 30.4.1
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       chalk: 4.1.2
       cjs-module-lexer: 2.2.0
       collect-v8-coverage: 1.0.3
@@ -8802,7 +8834,7 @@ snapshots:
   jest-util@30.4.1:
     dependencies:
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       chalk: 4.1.2
       ci-info: 4.4.0
       graceful-fs: 4.2.11
@@ -8821,7 +8853,7 @@ snapshots:
     dependencies:
       '@jest/test-result': 30.4.1
       '@jest/types': 30.4.1
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.13.1
@@ -8830,13 +8862,13 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
   jest-worker@30.4.1:
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 24.12.4
       '@ungap/structured-clone': 1.3.1
       jest-util: 30.4.1
       merge-stream: 2.0.0
