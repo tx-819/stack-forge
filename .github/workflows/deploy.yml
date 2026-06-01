@@ -1,0 +1,169 @@
+name: Build, push Docker Hub, deploy ECS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  changes:
+    name: Detect affected apps
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set.outputs.matrix }}
+      any: ${{ steps.set.outputs.any }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Paths filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            shared: &shared
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'package.json'
+              - '.github/workflows/deploy.yml'
+            api:
+              - *shared
+              - 'apps/api/**'
+            admin:
+              - *shared
+              - 'apps/admin/**'
+
+      - name: Build matrix
+        id: set
+        run: |
+          apps=()
+          [ "${{ steps.filter.outputs.api }}" = "true" ] && apps+=("api")
+          [ "${{ steps.filter.outputs.admin }}" = "true" ] && apps+=("admin")
+          if [ ${#apps[@]} -eq 0 ]; then
+            echo "any=false" >> "$GITHUB_OUTPUT"
+            echo 'matrix={"app":[]}' >> "$GITHUB_OUTPUT"
+          else
+            json=$(printf '"%s",' "${apps[@]}")
+            echo "any=true" >> "$GITHUB_OUTPUT"
+            echo "matrix={\"app\":[${json%,}]}" >> "$GITHUB_OUTPUT"
+          fi
+
+  release:
+    name: Build & deploy
+    needs: changes
+    if: needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.changes.outputs.matrix) }}
+    concurrency:
+      group: deploy-${{ matrix.app }}-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.app }}
+          tags: |
+            type=sha,prefix=,format=long
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
+
+      # 前置：服务器对应目录已就绪，edge 网络已存在。
+      # Secrets：DOCKERHUB_*、SSH_*、DEPLOY_PATH、
+      #          APP_ENV(api 多行)、SSL_DOMAIN/BACKEND_UPSTREAM(admin)
+      - name: Copy compose to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: apps/${{ matrix.app }}/docker-compose.yml
+          target: ${{ secrets.DEPLOY_PATH }}/${{ matrix.app }}
+          strip_components: 2
+          overwrite: true
+
+      - name: Deploy api on ECS via SSH
+        if: matrix.app == 'api'
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/api:${{ github.sha }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}/api
+          APP_ENV: ${{ secrets.APP_ENV }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: DOCKER_IMAGE,DEPLOY_PATH,APP_ENV
+          script: |
+            set -euo pipefail
+            cd "$DEPLOY_PATH"
+            umask 077
+            {
+              printf '%s\n' "${APP_ENV//$'\r'/}"
+              printf 'DOCKER_IMAGE=%s\n' "$DOCKER_IMAGE"
+            } > .env
+            docker compose pull
+            if ! docker compose up -d --remove-orphans --wait --wait-timeout 180; then
+              docker compose ps
+              docker compose logs --tail=200 api
+              exit 1
+            fi
+            docker compose ps
+            docker image prune -af --filter "until=168h" >/dev/null || true
+
+      - name: Deploy admin on ECS via SSH
+        if: matrix.app == 'admin'
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/admin:${{ github.sha }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}/admin
+          SSL_DOMAIN: ${{ secrets.SSL_DOMAIN }}
+          BACKEND_UPSTREAM: ${{ secrets.BACKEND_UPSTREAM }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: DOCKER_IMAGE,DEPLOY_PATH,SSL_DOMAIN,BACKEND_UPSTREAM
+          script: |
+            set -euo pipefail
+            cd "$DEPLOY_PATH"
+            umask 077
+            {
+              printf 'DOCKER_IMAGE=%s\n' "$DOCKER_IMAGE"
+              printf 'SSL_DOMAIN=%s\n' "${SSL_DOMAIN//$'\r'/}"
+              printf 'BACKEND_UPSTREAM=%s\n' "${BACKEND_UPSTREAM//$'\r'/}"
+            } > .env
+            docker compose pull
+            if ! docker compose up -d --remove-orphans --wait --wait-timeout 180; then
+              docker compose ps
+              docker compose logs --tail=200 web
+              exit 1
+            fi
+            docker compose ps
+            docker image prune -af --filter "until=168h" >/dev/null || true

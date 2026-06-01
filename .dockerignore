@@ -1,0 +1,39 @@
+# 依赖与产物（镜像内会重新安装/构建）
+**/node_modules
+**/dist
+**/build
+**/.pnpm-store
+**/*.tsbuildinfo
+
+# 版本控制 / CI / 文档 / 部署脚本
+.git
+.gitignore
+**/.github
+**/deploy
+**/docs
+**/*.md
+
+# 移动端不参与任一镜像构建
+apps/weapp
+
+# 环境与密钥（保留模板）
+**/.env
+**/.env.*
+!**/.env.template
+!**/.env.example
+
+# 测试与覆盖率
+**/coverage
+**/.nyc_output
+apps/*/test
+
+# 编辑器 / 系统
+**/.vscode
+**/.idea
+**/.cursor
+**/.DS_Store
+
+# Docker 自身
+**/Dockerfile*
+**/.dockerignore
+**/docker-compose*.yml
