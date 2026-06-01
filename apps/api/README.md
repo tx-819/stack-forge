@@ -210,7 +210,7 @@ pnpm prod
 
 ## Docker 与生产部署
 
-1. 在服务器上准备 **`deploy/edge`**（nginx + certbot），监听 80/443 并接入 Docker 网络 **`edge`**。先启动 edge，再启动本仓库 **`nest-admin`** 的 `docker compose up`，最后启动 **`react-admin`**，保证业务容器与 `edge-nginx` 在同一 `edge` 网络上。
+1. 在服务器上准备 monorepo 根目录 **[`deploy/edge`](../../deploy/edge)**（nginx + certbot），监听 80/443 并接入 Docker 网络 **`edge`**。先启动 edge，再启动 **`nest-admin`**（本目录 `docker compose up`），最后启动 **`react-admin`**，保证业务容器与 `edge-nginx` 在同一 `edge` 网络上。
 2. **`react-admin`**：在部署配置中设置 **`BACKEND_UPSTREAM=http://nest-admin:3000`**，由前端反代将浏览器的 **`/api/*`** 转到本后端。
 3. **API 子域名**：在 edge 的 `nest-admin-api` 配置中为 API 域名反代到 **`nest-admin:3000`**；若浏览器直接访问 API 子域名，需在本服务环境变量中设置 **`CORS_ORIGINS`**（例如前端 HTTPS 源，多个用英文逗号分隔）。
 4. **CI**：GitHub Actions 使用 Secret **`APP_ENV`** 写入服务器 `.env`（勿包含 **`DOCKER_IMAGE`**，由工作流追加）。已移除 **`SSL_DOMAIN`**、**`COMPOSE_FILE`** 等与 Caddy 叠加相关的注入。

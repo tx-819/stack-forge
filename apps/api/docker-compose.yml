@@ -6,7 +6,7 @@
 #     阿里云安全组：放行 SSH（22）即可；勿对 0.0.0.0/0 放行 3306/6379。SSH 源 IP 建议收紧为你的出口网段。
 # 接入方式：
 #   1) 内网：加入 `edge` 的容器可通过 docker DNS 访问 `http://nest-admin:3000`（如 react-admin 的 BACKEND_UPSTREAM）。
-#   2) 公网 API 子域名：由服务器 ~/edge/ 的 nginx（deploy/edge）反代到本容器，勿使用 docker-compose.caddy.yml。
+#   2) 公网 API 子域名：由服务器 edge 栈（仓库根 deploy/edge）反代到本容器。
 
 x-logging: &default-logging
     driver: json-file

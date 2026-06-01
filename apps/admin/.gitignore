@@ -23,7 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .env.*
-!deploy/edge/.env.example
 yarn.lock
 package-lock.json
 

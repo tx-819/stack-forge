@@ -94,7 +94,7 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,mode=max,scope=${{ matrix.app }}
 
-      # 前置：服务器对应目录已就绪，edge 网络已存在。
+      # 前置：服务器对应目录已就绪；仓库根 deploy/edge 已启动（edge 网络已存在）。
       # Secrets：DOCKERHUB_*、SSH_*、DEPLOY_PATH、
       #          APP_ENV(api 多行)、SSL_DOMAIN/BACKEND_UPSTREAM(admin)
       - name: Copy compose to server

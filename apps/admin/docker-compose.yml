@@ -1,6 +1,6 @@
 # 服务器侧 compose：与 workflow 写入的 .env 配合（DOCKER_IMAGE、BACKEND_UPSTREAM 等）。
 # 本服务不绑定宿主机端口；由 ~/edge/ 的 nginx 将 80/443 反代到本容器 expose 的 80。
-# 域名与 TLS 在 deploy/edge 中配置；业务侧仅需接入 edge 网络并保持容器名稳定（如 react-admin）。
+# 域名与 TLS 在仓库根 deploy/edge 中配置；业务侧仅需接入 edge 网络并保持容器名稳定（如 react-admin）。
 services:
   web:
     image: ${DOCKER_IMAGE}

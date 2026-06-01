@@ -8,6 +8,8 @@
 .
 ├── pnpm-workspace.yaml      # 工作区声明（apps/api、apps/admin）
 ├── package.json             # 根级聚合脚本
+├── deploy/                  # 服务器共用部署
+│   └── edge/                # nginx + certbot，宿主机 80/443，Docker 网络 edge
 └── apps/
     ├── api/                 # 后端：NestJS 11 + Prisma + MariaDB + Redis/BullMQ + JWT + Swagger
     ├── admin/               # 后台前端：React 19 + Vite 7 + Ant Design 6 + TailwindCSS 4
@@ -77,23 +79,23 @@ pnpm dev:web      # 终端 2
 
 ### 总览
 
-| 分类 | 数量 | 说明 |
-| --- | --- | --- |
-| 共用（Docker + SSH + 部署目录） | 6 个 | `api` / `admin` 部署都会用到 |
-| 仅 api | 1 个 | 应用环境变量 |
-| 仅 admin | 2 个 | 域名 / 后端上游 |
-| **合计** | **9 个** | |
+| 分类                            | 数量     | 说明                         |
+| ------------------------------- | -------- | ---------------------------- |
+| 共用（Docker + SSH + 部署目录） | 6 个     | `api` / `admin` 部署都会用到 |
+| 仅 api                          | 1 个     | 应用环境变量                 |
+| 仅 admin                        | 2 个     | 域名 / 后端上游              |
+| **合计**                        | **9 个** |                              |
 
 ### 共用 Secrets
 
-| Secret 名称 | 用途 | 示例 / 说明 |
-| --- | --- | --- |
-| `DOCKERHUB_USERNAME` | 登录 Docker Hub、镜像名前缀 | Docker Hub 用户名 |
-| `DOCKERHUB_TOKEN` | Docker Hub 访问令牌 | 在 Docker Hub → Account Settings → Security 创建 Access Token（勿用登录密码） |
-| `SSH_HOST` | ECS 服务器 IP 或域名 | 如 `47.x.x.x` |
-| `SSH_USER` | SSH 登录用户名 | 如 `root`、`ubuntu` |
-| `SSH_PRIVATE_KEY` | SSH 私钥全文 | 含 `-----BEGIN ... KEY-----` 整段，对应服务器 `authorized_keys` 中的公钥 |
-| `DEPLOY_PATH` | 服务器上的部署根目录 | 如 `/home/ubuntu/deploy`；workflow 自动使用 `$DEPLOY_PATH/api`、`$DEPLOY_PATH/admin` 子目录 |
+| Secret 名称          | 用途                        | 示例 / 说明                                                                                 |
+| -------------------- | --------------------------- | ------------------------------------------------------------------------------------------- |
+| `DOCKERHUB_USERNAME` | 登录 Docker Hub、镜像名前缀 | Docker Hub 用户名                                                                           |
+| `DOCKERHUB_TOKEN`    | Docker Hub 访问令牌         | 在 Docker Hub → Account Settings → Security 创建 Access Token（勿用登录密码）               |
+| `SSH_HOST`           | ECS 服务器 IP 或域名        | 如 `47.x.x.x`                                                                               |
+| `SSH_USER`           | SSH 登录用户名              | 如 `root`、`ubuntu`                                                                         |
+| `SSH_PRIVATE_KEY`    | SSH 私钥全文                | 含 `-----BEGIN ... KEY-----` 整段，对应服务器 `authorized_keys` 中的公钥                    |
+| `DEPLOY_PATH`        | 服务器上的部署根目录        | 如 `/home/ubuntu/deploy`；workflow 自动使用 `$DEPLOY_PATH/api`、`$DEPLOY_PATH/admin` 子目录 |
 
 推送镜像命名（workflow 自动使用）：
 
@@ -102,9 +104,9 @@ pnpm dev:web      # 终端 2
 
 ### 仅 api 部署
 
-| Secret 名称 | 用途 | 示例 / 说明 |
-| --- | --- | --- |
-| `APP_ENV` | 写入服务器 `.env` 的应用配置（**多行**） | 内容参考 [apps/api/.env.template](apps/api/.env.template)；**不要**包含 `DOCKER_IMAGE`（workflow 会自动追加） |
+| Secret 名称 | 用途                                     | 示例 / 说明                                                                                                   |
+| ----------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `APP_ENV`   | 写入服务器 `.env` 的应用配置（**多行**） | 内容参考 [apps/api/.env.template](apps/api/.env.template)；**不要**包含 `DOCKER_IMAGE`（workflow 会自动追加） |
 
 `APP_ENV` 生产环境要点（与 [apps/api/docker-compose.yml](apps/api/docker-compose.yml) 配合）：
 
@@ -114,26 +116,27 @@ pnpm dev:web      # 终端 2
 
 ### 仅 admin 部署
 
-| Secret 名称 | 用途 | 示例 / 说明 |
-| --- | --- | --- |
-| `SSL_DOMAIN` | 前端对外域名 | 如 `admin.example.com` |
-| `BACKEND_UPSTREAM` | 容器内 nginx 反代的后端地址 | `http://nest-admin:3000`（指向 api 的 **container_name**，见 api 的 docker-compose） |
+| Secret 名称        | 用途                                                                                                          | 示例 / 说明                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `SSL_DOMAIN`       | 写入 admin 服务器 `.env` 的参考项（compose 未读取）；公网域名与证书在 **`deploy/edge`** 的 `EDGE_DOMAIN` 配置 | 如 `admin.example.com`                                                               |
+| `BACKEND_UPSTREAM` | 容器内 nginx 反代的后端地址                                                                                   | `http://nest-admin:3000`（指向 api 的 **container_name**，见 api 的 docker-compose） |
 
 ### 与旧单仓库 Secrets 的对应
 
-| 旧 Secret（单仓库时代） | 新 Secret（monorepo） |
-| --- | --- |
-| `DEPLOY_PATH` | 不变；作为根目录，子目录为 `api`、`admin` |
-| `APP_ENV` | 不变 |
-| `SSL_DOMAIN`、`BACKEND_UPSTREAM` | 不变 |
-| `DOCKERHUB_*`、`SSH_*` | 不变 |
+| 旧 Secret（单仓库时代）          | 新 Secret（monorepo）                     |
+| -------------------------------- | ----------------------------------------- |
+| `DEPLOY_PATH`                    | 不变；作为根目录，子目录为 `api`、`admin` |
+| `APP_ENV`                        | 不变                                      |
+| `SSL_DOMAIN`、`BACKEND_UPSTREAM` | 不变                                      |
+| `DOCKERHUB_*`、`SSH_*`           | 不变                                      |
 
 ### 服务器前置条件
 
 - 已安装 Docker 与 Docker Compose
-- 已存在外部 Docker 网络 `edge`（edge nginx 与业务容器共用）
+- **Edge 栈（一次性）**：将仓库根 [`deploy/edge/`](deploy/edge/) 拷到服务器（如 `/opt/edge`），按 [`deploy/edge/README.md`](deploy/edge/README.md) 启动 nginx + certbot，创建 Docker 网络 **`edge`**
 - `$DEPLOY_PATH/api`、`$DEPLOY_PATH/admin` 子目录存在（或首次部署前在服务器创建），SSH 用户可执行 `docker compose`
 - 服务器可拉取 Docker Hub 上的 `{用户名}/api`、`{用户名}/admin` 镜像
+- 部署顺序建议：**edge** → **api** compose → **admin** compose（后两者由 Actions 更新镜像）
 
 ### 配置核对清单
 

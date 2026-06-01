@@ -2,12 +2,12 @@
 
 服务器上所有项目共用的「前台」：**在宿主机监听 80/443**，终止 TLS，并将流量反代到接入 **`edge`** 网络的各业务容器。
 
-- **`nginx/conf.d/react-admin.conf`**：`EDGE_DOMAIN` → **`react-admin:80`**（前端 SPA）。
-- **`nginx/conf.d/nest-admin-api.conf`**：`API_DOMAIN` → **`nest-admin:3000`**（后端 API）。
+- **`nginx/conf.d/admin.conf`**：`EDGE_DOMAIN` → **`react-admin:80`**（前端 SPA）。
+- **`nginx/conf.d/api.conf`**：`API_DOMAIN` → **`nest-admin:3000`**（后端 API）。
 
-与旧版 **caddy-docker-proxy** 的差异：路由须在 **`nginx/conf.d/`** 内显式维护；每新增对外域名，维护对应 `server` 并执行 **certbot**。
+路由须在 **`nginx/conf.d/`** 内显式维护；每新增对外域名，维护对应 `server` 并执行 **certbot**。
 
-脚本在 **`scripts/`**（在 edge 根目录执行：`sh ./scripts/setup-https.sh`）。
+脚本在 **`scripts/`**（在 edge 根目录执行，例如 `sh ./scripts/setup-https.sh admin`）。
 
 ## 前置条件
 
@@ -21,13 +21,13 @@
 
 ## 首次部署顺序
 
-1. 将本目录拷到服务器，例如 `scp -r deploy/edge/ user@host:/opt/edge`。
+1. 在仓库根目录将本目录拷到服务器，例如 `scp -r deploy/edge/ user@host:/opt/edge`（在服务器上 `cd /opt/edge` 后执行下文命令）。
 2. `cp .env.example .env`，填写 `EDGE_DOMAIN`、`API_DOMAIN`、`CERTBOT_EMAIL`。
-3. 将 **`nginx/conf.d/react-admin.conf`**、**`nest-admin-api.conf`** 中的 **`app.example.com` / `api.example.com`** 分别替换为你的真实域名（与 `.env` 一致），或保留占位并在签发前替换。
+3. 将 **`nginx/conf.d/admin.conf`**、**`api.conf`** 中的 **`app.example.com` / `api.example.com`** 分别替换为你的真实域名（与 `.env` 一致），或保留占位并在签发前替换。
 4. `docker compose up -d`，确认网络 **`edge`** 存在。
 5. 启动 **`nest-admin`** 业务栈，再启动 **`react-admin`**（均需 `networks.edge.external: true`）。
-6. **前端证书**：`sh ./scripts/setup-https.sh`（HTTP-01 + webroot，写入 `EDGE_DOMAIN` 证书并切换 HTTPS conf）。
-7. **API 证书**：`sh ./scripts/setup-https-api.sh`。
+6. **前端证书**：`sh ./scripts/setup-https.sh admin`（或省略参数，默认 `admin`）。
+7. **API 证书**（若使用 API 子域名）：`sh ./scripts/setup-https.sh api`；或一次性 `sh ./scripts/setup-https.sh all`。
 8. 校验：`sh ./scripts/verify-https.sh`（若 `.env` 含 `API_DOMAIN` 会同时探测 API）。
 
 ## 同机联调（react-admin + nest-admin）
