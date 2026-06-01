@@ -1,0 +1,134 @@
+# 服务器侧 compose：与 workflow 写入的 .env 配合（DOCKER_IMAGE、MYSQL_* 等）。
+#
+# 宿主机端口：
+#   - api 仍不映射宿主机端口（经 edge 反代）。
+#   - mysql / redis 仅绑定 127.0.0.1，供本机工具或「Navicat / Redis 客户端 + SSH 隧道」使用。
+#     阿里云安全组：放行 SSH（22）即可；勿对 0.0.0.0/0 放行 3306/6379。SSH 源 IP 建议收紧为你的出口网段。
+# 接入方式：
+#   1) 内网：加入 `edge` 的容器可通过 docker DNS 访问 `http://nest-admin:3000`（如 react-admin 的 BACKEND_UPSTREAM）。
+#   2) 公网 API 子域名：由服务器 ~/edge/ 的 nginx（deploy/edge）反代到本容器，勿使用 docker-compose.caddy.yml。
+
+x-logging: &default-logging
+    driver: json-file
+    options:
+        max-size: '10m'
+        max-file: '3'
+
+services:
+    api:
+        image: ${DOCKER_IMAGE:?DOCKER_IMAGE is required (set in .env)}
+        container_name: nest-admin
+        expose:
+            - '3000'
+        environment:
+            NODE_ENV: production
+            APP_HOST: 0.0.0.0
+            APP_PORT: 3000
+            APP_NAME: ${APP_NAME:-nest-admin}
+            APP_LOG_LEVEL: ${APP_LOG_LEVEL:-info}
+            MYSQL_USER: ${MYSQL_USER:?MYSQL_USER is required}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
+            MYSQL_HOST: ${MYSQL_HOST:-mysql}
+            MYSQL_PORT: ${MYSQL_PORT:-3306}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:?MYSQL_DATABASE is required}
+            REDIS_URL: redis://redis:6379
+            AUTH_ACCESS_TOKEN_SECRET: ${AUTH_ACCESS_TOKEN_SECRET:?AUTH_ACCESS_TOKEN_SECRET is required}
+            AUTH_ACCESS_TOKEN_EXP: ${AUTH_ACCESS_TOKEN_EXP:-15m}
+            AUTH_REFRESH_TOKEN_TTL: ${AUTH_REFRESH_TOKEN_TTL:-604800}
+            AUTH_MAGIC_LOGIN_TOKEN_TTL: ${AUTH_MAGIC_LOGIN_TOKEN_TTL:-300}
+            APP_FRONTEND_URL: ${APP_FRONTEND_URL:?APP_FRONTEND_URL is required}
+            SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
+            SMTP_PORT: ${SMTP_PORT:-587}
+            SMTP_SECURE: ${SMTP_SECURE:-false}
+            SMTP_USER: ${SMTP_USER:-}
+            SMTP_PASS: ${SMTP_PASS:-}
+            SMTP_FROM: ${SMTP_FROM:-noreply@example.com}
+            TZ: ${TZ:-Asia/Shanghai}
+        networks:
+            - edge
+            - internal
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_started
+        healthcheck:
+            # 用纯 Node 探活，不依赖镜像里没装的 wget/curl
+            test:
+                - CMD
+                - node
+                - -e
+                - "require('net').createConnection(3000,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"
+            interval: 10s
+            timeout: 3s
+            retries: 5
+            start_period: 30s
+        logging: *default-logging
+        restart: unless-stopped
+
+    mysql:
+        image: mysql:8.4
+        container_name: nest-admin-mysql
+        command:
+            - --default-time-zone=+08:00
+            - --character-set-server=utf8mb4
+            - --collation-server=utf8mb4_unicode_ci
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:?MYSQL_DATABASE is required}
+            # 不可为 root：官方镜像用 MYSQL_ROOT_PASSWORD 管 root，MYSQL_USER 仅创建普通账号
+            MYSQL_USER: ${MYSQL_USER:?MYSQL_USER is required}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+            TZ: ${TZ:-Asia/Shanghai}
+        volumes:
+            - mysql_data:/var/lib/mysql
+        ports:
+            - '127.0.0.1:3306:3306'
+        networks:
+            - internal
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'mysqladmin',
+                    'ping',
+                    '-h',
+                    'localhost',
+                    '-p${MYSQL_PASSWORD}',
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 30s
+        logging: *default-logging
+        restart: unless-stopped
+
+    redis:
+        image: redis:7-alpine
+        container_name: nest-admin-redis
+        command: ['redis-server', '--appendonly', 'yes']
+        volumes:
+            - redis_data:/data
+        ports:
+            - '127.0.0.1:6379:6379'
+        networks:
+            - internal
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 10s
+            timeout: 3s
+            retries: 5
+        logging: *default-logging
+        restart: unless-stopped
+
+networks:
+    edge:
+        external: true
+        name: edge
+    internal:
+        name: nest-admin-internal
+
+volumes:
+    mysql_data:
+    redis_data:

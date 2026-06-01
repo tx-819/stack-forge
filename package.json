@@ -1,0 +1,15 @@
+{
+  "name": "template-monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev:server": "pnpm --filter nest-admin dev",
+    "dev:web": "pnpm --filter react-fashionable-admin dev",
+    "start:server": "pnpm --filter nest-admin start",
+    "build:server": "pnpm --filter nest-admin build",
+    "build:web": "pnpm --filter react-fashionable-admin build",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint"
+  }
+}

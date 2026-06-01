@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+dist-ssr/
+unpackage/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Tests / coverage
+coverage/
+.nyc_output/
+
+# Env files
+.env
+.env.*
+!.env.template
+!.env.example
+
+# OS / Editor
+.DS_Store
+.idea/
+.hbuilderx/
+*.local
+*.suo
+*.sw?
+
+# Prisma generated client
+apps/nest-admin/src/generated/prisma
+
+# Misc
+.temp
+.tmp
+pids
+*.pid
+*.seed
+*.pid.lock

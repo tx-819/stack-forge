@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider     = "prisma-client"
+  moduleFormat = "cjs"
+  output       = "../src/generated/prisma"
+}
+
+datasource db {
+  provider     = "mysql"
+  relationMode = "prisma"
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String?    @unique
+  username  String     @unique
+  password  String?
+  nickname  String?
+  avatar    String?
+  phone     String?    @map("phone")
+  openid    String?    @unique @map("wx_openid")
+  unionid   String?    @map("wx_unionid")
+  isSuper   Boolean    @default(false) @map("is_super")
+  status    Boolean    @default(true)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  roles     UserRole[]
+
+  @@index([unionid])
+  @@map("user")
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @db.VarChar(50)
+  code        String           @unique @db.VarChar(50)
+  remark      String?          @db.Text
+  status      Boolean          @default(true)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@map("role")
+}
+
+model UserRole {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  roleId    Int      @map("role_id")
+  user      User     @relation(fields: [userId], references: [id])
+  role      Role     @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+  @@map("user_role")
+}
+
+model RolePermission {
+  id           Int        @id @default(autoincrement())
+  roleId       Int        @map("role_id")
+  permissionId Int        @map("permission_id")
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("role_permission")
+}
+
+model Permission {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(50)
+  code           String?          @db.VarChar(50) // action code
+  remark         String?          @db.Text
+  status         Boolean          @default(true)
+  permissionType String           @map("permission_type") @db.VarChar(50) // menu, action
+  path           String?          @db.VarChar(255)
+  icon           String?          @db.VarChar(255)
+  component      String?          @db.VarChar(255)
+  orderNo        Int              @default(0) @map("order_no")
+  parentId       Int?             @map("parent_id")
+  parent         Permission?      @relation("ParentPermission", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children       Permission[]     @relation("ParentPermission")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  roles          RolePermission[]
+
+  @@index([parentId])
+  @@map("permission")
+}

@@ -1,0 +1,39 @@
+# 签发证书后：复制为 react-admin.conf（覆盖默认 HTTP-only），并将三处 app.example.com 改为你的域名。
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  ''      close;
+}
+
+server {
+  listen 80;
+  server_name app.example.com;
+
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}
+
+server {
+  listen 443 ssl;
+  http2 on;
+  server_name app.example.com;
+
+  ssl_certificate     /etc/letsencrypt/live/app.example.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/app.example.com/privkey.pem;
+  ssl_protocols       TLSv1.2 TLSv1.3;
+
+  location / {
+    proxy_pass http://react-admin:80;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+  }
+}

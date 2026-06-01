@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 自定义自动填充样式 - 作为 Tailwind 组件类，在需要的容器上使用 form-autofill-style */
+@layer components {
+  .form-autofill-style input:-webkit-autofill,
+  .form-autofill-style input:-webkit-autofill:hover,
+  .form-autofill-style input:-webkit-autofill:focus,
+  .form-autofill-style input:-webkit-autofill:active,
+  .form-autofill-style textarea:-webkit-autofill,
+  .form-autofill-style textarea:-webkit-autofill:hover,
+  .form-autofill-style textarea:-webkit-autofill:focus,
+  .form-autofill-style textarea:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #1f2937 !important;
+    caret-color: #1f2937 !important;
+    font-size: 16px !important;
+  }
+
+  .dark .form-autofill-style input:-webkit-autofill,
+  .dark .form-autofill-style input:-webkit-autofill:hover,
+  .dark .form-autofill-style input:-webkit-autofill:focus,
+  .dark .form-autofill-style input:-webkit-autofill:active,
+  .dark .form-autofill-style textarea:-webkit-autofill,
+  .dark .form-autofill-style textarea:-webkit-autofill:hover,
+  .dark .form-autofill-style textarea:-webkit-autofill:focus,
+  .dark .form-autofill-style textarea:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #141414 inset !important;
+    -webkit-text-fill-color: #f3f4f6 !important;
+    caret-color: #f3f4f6 !important;
+    font-size: 16px !important;
+  }
+}

@@ -1,0 +1,31 @@
+# Edge 栈：宿主机边界 nginx（TLS 终结 + 反代）。先启动本栈以创建 docker 网络 edge。
+# 业务项目 compose 中 edge 应为 external: true，故依赖本目录先 docker compose up -d。
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: edge-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt:ro
+    networks:
+      - edge
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot:v2.11.0
+    restart: "no"
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+
+networks:
+  edge:
+    name: edge
+
+volumes:
+  certbot_www:
+  certbot_conf:

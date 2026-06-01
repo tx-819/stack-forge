@@ -1,0 +1,3 @@
+packages:
+  - "apps/nest-admin"
+  - "apps/react-admin"
