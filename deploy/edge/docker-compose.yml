@@ -2,7 +2,7 @@
 # 业务项目 compose 中 edge 应为 external: true，故依赖本目录先 docker compose up -d。
 services:
   nginx:
-    image: nginx:1.27-alpine
+    image: nginx:alpine
     container_name: edge-nginx
     ports:
       - "80:80"
@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   certbot:
-    image: certbot/certbot:v2.11.0
+    image: certbot/certbot:latest
     restart: "no"
     volumes:
       - certbot_www:/var/www/certbot
