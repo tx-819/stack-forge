@@ -395,6 +395,8 @@ Settings -> Secrets and variables -> Actions -> Repository secrets
 
 添加以下 secrets：
 
+公网域名与 HTTPS 证书不再通过 GitHub Secrets 配置，而是在服务器 `/opt/edge/.env` 中配置 `EDGE_DOMAIN`、`API_DOMAIN` 和 `CERTBOT_EMAIL`。
+
 | Secret               | 说明                        | 示例                           |
 | -------------------- | --------------------------- | ------------------------------ |
 | `DOCKERHUB_USERNAME` | Docker Hub 用户名           | `your-dockerhub-name`          |
@@ -404,7 +406,6 @@ Settings -> Secrets and variables -> Actions -> Repository secrets
 | `SSH_PRIVATE_KEY`    | SSH 私钥全文                | 包含 `-----BEGIN ... KEY-----` |
 | `DEPLOY_PATH`        | 服务器部署根目录            | `/opt/stack-forge`             |
 | `APP_ENV`            | 后端生产环境变量，多行      | 见下一节                       |
-| `SSL_DOMAIN`         | 后台前端域名                | `admin.example.com`            |
 | `BACKEND_UPSTREAM`   | 后台 nginx 代理到后端的地址 | `http://nest-admin:3000`       |
 
 `SSH_PRIVATE_KEY` 对应的公钥必须已经添加到服务器用户的：

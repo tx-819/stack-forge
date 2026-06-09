@@ -83,8 +83,8 @@ pnpm dev:web      # 终端 2
 | ------------------------------- | -------- | ---------------------------- |
 | 共用（Docker + SSH + 部署目录） | 6 个     | `api` / `admin` 部署都会用到 |
 | 仅 api                          | 1 个     | 应用环境变量                 |
-| 仅 admin                        | 2 个     | 域名 / 后端上游              |
-| **合计**                        | **9 个** |                              |
+| 仅 admin                        | 1 个     | 后端上游                    |
+| **合计**                        | **8 个** |                              |
 
 ### 共用 Secrets
 
@@ -118,7 +118,6 @@ pnpm dev:web      # 终端 2
 
 | Secret 名称        | 用途                                                                                                          | 示例 / 说明                                                                          |
 | ------------------ | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `SSL_DOMAIN`       | 写入 admin 服务器 `.env` 的参考项（compose 未读取）；公网域名与证书在 **`deploy/edge`** 的 `EDGE_DOMAIN` 配置 | 如 `admin.example.com`                                                               |
 | `BACKEND_UPSTREAM` | 容器内 nginx 反代的后端地址                                                                                   | `http://nest-admin:3000`（指向 api 的 **container_name**，见 api 的 docker-compose） |
 
 ### 与旧单仓库 Secrets 的对应
@@ -127,7 +126,7 @@ pnpm dev:web      # 终端 2
 | -------------------------------- | ----------------------------------------- |
 | `DEPLOY_PATH`                    | 不变；作为根目录，子目录为 `api`、`admin` |
 | `APP_ENV`                        | 不变                                      |
-| `SSL_DOMAIN`、`BACKEND_UPSTREAM` | 不变                                      |
+| `BACKEND_UPSTREAM`               | 不变                                      |
 | `DOCKERHUB_*`、`SSH_*`           | 不变                                      |
 
 ### 服务器前置条件
@@ -148,6 +147,5 @@ pnpm dev:web      # 终端 2
 [ ] SSH_PRIVATE_KEY
 [ ] DEPLOY_PATH
 [ ] APP_ENV（多行，生产环境变量）
-[ ] SSL_DOMAIN
 [ ] BACKEND_UPSTREAM（http://nest-admin:3000）
 ```

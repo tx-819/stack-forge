@@ -96,7 +96,7 @@ jobs:
 
       # 前置：服务器对应目录已就绪；仓库根 deploy/edge 已启动（edge 网络已存在）。
       # Secrets：DOCKERHUB_*、SSH_*、DEPLOY_PATH、
-      #          APP_ENV(api 多行)、SSL_DOMAIN/BACKEND_UPSTREAM(admin)
+      #          APP_ENV(api 多行)、BACKEND_UPSTREAM(admin)
       - name: Copy compose to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -143,20 +143,18 @@ jobs:
         env:
           DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/admin:${{ github.sha }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}/admin
-          SSL_DOMAIN: ${{ secrets.SSL_DOMAIN }}
           BACKEND_UPSTREAM: ${{ secrets.BACKEND_UPSTREAM }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: DOCKER_IMAGE,DEPLOY_PATH,SSL_DOMAIN,BACKEND_UPSTREAM
+          envs: DOCKER_IMAGE,DEPLOY_PATH,BACKEND_UPSTREAM
           script: |
             set -euo pipefail
             cd "$DEPLOY_PATH"
             umask 077
             {
               printf 'DOCKER_IMAGE=%s\n' "$DOCKER_IMAGE"
-              printf 'SSL_DOMAIN=%s\n' "${SSL_DOMAIN//$'\r'/}"
               printf 'BACKEND_UPSTREAM=%s\n' "${BACKEND_UPSTREAM//$'\r'/}"
             } > .env
             docker compose pull
