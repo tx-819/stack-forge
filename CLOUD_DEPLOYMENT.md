@@ -110,7 +110,10 @@ sudo mkdir -p /etc/docker
 sudo tee /etc/docker/daemon.json > /dev/null <<'EOF'
 {
   "registry-mirrors": [
-    "https://你的专属ID.mirror.aliyuncs.com"
+    "https://你的专属ID.mirror.aliyuncs.com",
+    "https://docker.1panel.live",
+    "https://dockerpull.com",
+    "https://dockerproxy.cn"
   ]
 }
 EOF
@@ -135,36 +138,6 @@ docker info | grep -A 10 "Registry Mirrors"
 docker pull hello-world
 docker run --rm hello-world
 ```
-
-### 1.3 国内服务器登录 Docker Hub 的说明
-
-`registry-mirrors` 主要解决的是 `docker pull` 加速问题，不一定能解决 `docker login Docker Hub` 的网络问题。
-
-当前项目默认 GitHub Actions 推送镜像到 Docker Hub，服务器执行 `docker compose pull` 拉取镜像。国内服务器有两种推荐做法：
-
-方案 A：Docker Hub 镜像设为 public，服务器不登录 Docker Hub，只拉取公开镜像。
-
-```bash
-docker pull your-dockerhub-name/api:latest
-docker pull your-dockerhub-name/admin:latest
-```
-
-方案 B：使用阿里云 ACR 作为镜像仓库，国内服务器登录和拉取更稳定。
-
-如果使用阿里云 ACR，服务器登录示例：
-
-```bash
-docker login registry.cn-hangzhou.aliyuncs.com
-```
-
-然后镜像名会变成类似：
-
-```text
-registry.cn-hangzhou.aliyuncs.com/your-namespace/api:latest
-registry.cn-hangzhou.aliyuncs.com/your-namespace/admin:latest
-```
-
-如果继续使用 Docker Hub 私有镜像，并且 `docker login` 失败，通常需要服务器具备可访问 Docker Hub 登录服务的网络环境。仅配置 registry mirror 可能不够。
 
 ## 2. 准备域名
 

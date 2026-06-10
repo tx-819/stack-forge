@@ -95,7 +95,7 @@ services:
                     'ping',
                     '-h',
                     'localhost',
-                    '-p${MYSQL_PASSWORD}',
+                    '-p${MYSQL_ROOT_PASSWORD}',
                 ]
             interval: 10s
             timeout: 5s
