@@ -1,4 +1,4 @@
-import { useLocation, useOutlet } from "react-router-dom";
+import { Navigate, useLocation, useOutlet } from "react-router-dom";
 import { useUserStore } from "@/store/userStore";
 import { useMenuStore } from "@/store/menuStore";
 import { normalizeMenuPath } from "@/utils/menuPaths";
@@ -11,14 +11,15 @@ const AnimatedOutlet = () => {
 };
 
 const MenuRouteGuard = () => {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const isLogin = useUserStore((s) => s.isLogin);
   const isSuper = useUserStore((s) => s.isSuper);
   const menuLoading = useMenuStore((s) => s.menuLoading);
   const allowedPathnames = useMenuStore((s) => s.allowedPathnames);
 
   if (!isLogin) {
-    return <AnimatedOutlet />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   if (menuLoading) {
