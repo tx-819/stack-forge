@@ -20,7 +20,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "src/*": ["./src/*"]
+      "src/*": ["./src/*"],
+      "@stack-forge/contracts": ["../../packages/contracts/src/index.ts"],
+      "@stack-forge/shared": ["../../packages/shared/src/index.ts"]
     },
 
     /* Linting */
@@ -31,5 +33,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "../../packages/contracts/src", "../../packages/shared/src"]
 }

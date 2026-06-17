@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Permission } from 'src/generated/prisma/client';
 import {
     IsBoolean,
     IsIn,
@@ -12,21 +11,24 @@ import {
 import { BaseDto } from 'src/common/helper/dtos';
 import { PartialType, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-
-export const PERMISSION_TYPE_MENU = 'menu';
-export const PERMISSION_TYPE_ACTION = 'action';
-export const PERMISSION_TYPES = [
-    PERMISSION_TYPE_MENU,
+import {
     PERMISSION_TYPE_ACTION,
-] as const;
+    PERMISSION_TYPE_MENU,
+    PERMISSION_TYPES,
+    type AuthAction,
+    type CreatePermissionRequest,
+    type Permission as ContractPermission,
+    type PermissionTree,
+    type PermissionType,
+    type UpdatePermissionRequest,
+} from '@stack-forge/contracts';
+
+export { PERMISSION_TYPE_ACTION, PERMISSION_TYPE_MENU, PERMISSION_TYPES };
 
 /** 按路由分组的操作权限（供 Permission 层返回，字段与 Auth 侧 ActionListDto 对齐） */
-export type PermissionActionGroup = {
-    pathname: string;
-    actions: Array<{ code: string; name: string }>;
-};
+export type PermissionActionGroup = AuthAction;
 
-export class PermissionDto extends BaseDto implements Permission {
+export class PermissionDto extends BaseDto implements ContractPermission {
     @ApiProperty({ example: '用户管理' })
     @IsString()
     name: string;
@@ -49,7 +51,7 @@ export class PermissionDto extends BaseDto implements Permission {
     @ApiProperty({ example: 'menu', enum: PERMISSION_TYPES })
     @IsString()
     @IsIn(PERMISSION_TYPES)
-    permissionType: string;
+    permissionType: PermissionType;
 
     @ApiProperty({ example: '/user', required: false, nullable: true })
     @IsString()
@@ -77,7 +79,7 @@ export class PermissionDto extends BaseDto implements Permission {
     parentId: number | null;
 }
 
-export class PermissionTreeDto extends PermissionDto {
+export class PermissionTreeDto extends PermissionDto implements PermissionTree {
     @ApiProperty({ type: [() => PermissionTreeDto], nullable: true })
     @Type(() => PermissionTreeDto)
     children: PermissionTreeDto[] | null;
@@ -93,7 +95,7 @@ export class CreatePermissionDto extends PickType(PermissionDto, [
     'component',
     'orderNo',
     'parentId',
-]) {
+]) implements CreatePermissionRequest {
     @ApiProperty({
         example: 'user:list',
         description: 'action 权限时必传，表示权限码',
@@ -108,10 +110,10 @@ export class CreatePermissionDto extends PickType(PermissionDto, [
     @IsString()
     @IsNotEmpty()
     @IsIn(PERMISSION_TYPES, { message: 'permissionType 必须为 menu 或 action' })
-    permissionType: (typeof PERMISSION_TYPES)[number];
+    permissionType: PermissionType;
 }
 
-export class UpdatePermissionDto extends PartialType(CreatePermissionDto) {
+export class UpdatePermissionDto extends PartialType(CreatePermissionDto) implements UpdatePermissionRequest {
     @ApiProperty({
         example: 'user:list',
         description: 'action 权限时必传',

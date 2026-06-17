@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { message, Tree, Spin, Form } from "antd";
 import type { DataNode } from "antd/es/tree";
-import type { ReactNode } from "react";
+import type { Key, MouseEvent, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import DMForm from "@/components/DMForm";
 import {
@@ -10,37 +10,43 @@ import {
   type Role,
   type UpdateRolePermissionsParams,
 } from "@/api/role";
-import { getPermissionTreeApi, type Permission } from "@/api/permission";
+import {
+  getPermissionTreeApi,
+  type PermissionTree as PermissionTreeNode,
+} from "@/api/permission";
 
 interface PermissionConfigProps {
   /** 角色信息 */
   role: Role;
   /** 触发元素 */
-  trigger?: ReactNode | ((props: { onClick: (e: React.MouseEvent) => void }) => ReactNode);
+  trigger?:
+    | ReactNode
+    | ((props: { onClick: (e: MouseEvent) => void }) => ReactNode);
   /** 保存成功回调 */
   onSuccess?: () => void;
 }
 
-const PermissionConfig = ({ role, trigger, onSuccess }: PermissionConfigProps) => {
+// 将权限树转换为 Tree 组件需要的格式
+function convertPermissionsToTreeData(
+  permissions: PermissionTreeNode[],
+): DataNode[] {
+  return permissions.map((permission) => ({
+    title: permission.name,
+    key: permission.id,
+    children: permission.children
+      ? convertPermissionsToTreeData(permission.children)
+      : undefined,
+  }));
+}
+
+const PermissionConfig = ({
+  role,
+  trigger,
+  onSuccess,
+}: PermissionConfigProps) => {
   const { t } = useTranslation();
-  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [permissions, setPermissions] = useState<PermissionTreeNode[]>([]);
   const [loading, setLoading] = useState(false);
-
-  // 将权限树转换为 Tree 组件需要的格式
-  const convertPermissionsToTreeData = useCallback(
-    (permissions: Permission[]): DataNode[] => {
-      return permissions.map((permission) => ({
-        title: permission.name,
-        key: permission.id,
-        value: permission.id,
-        children: permission.children
-          ? convertPermissionsToTreeData(permission.children)
-          : undefined,
-      }));
-    },
-    []
-  );
-
 
   // 加载权限数据
   const loadPermissions = useCallback(async () => {
@@ -70,7 +76,7 @@ const PermissionConfig = ({ role, trigger, onSuccess }: PermissionConfigProps) =
   // 树形数据
   const treeData = useMemo(
     () => convertPermissionsToTreeData(permissions),
-    [permissions, convertPermissionsToTreeData]
+    [permissions],
   );
 
   return (
@@ -99,9 +105,10 @@ const PermissionConfig = ({ role, trigger, onSuccess }: PermissionConfigProps) =
           if (onSuccess) {
             onSuccess();
           }
-        }).catch(() => {
-          error(t("roles.message.updatePermissionsError"))
         })
+          .catch(() => {
+            error(t("roles.message.updatePermissionsError"));
+          });
       }}
     >
       <Form.Item name="permissionIds">
@@ -115,10 +122,12 @@ const PermissionConfig = ({ role, trigger, onSuccess }: PermissionConfigProps) =
   );
 };
 
-
 // 获取所有父权限ID（递归向上查找）
-const getAllParentIds = (permissionId: string, parentMap: Map<string, string | undefined>): string[] => {
-  const parentIds: string[] = [];
+const getAllParentIds = (
+  permissionId: number,
+  parentMap: Map<number, number | undefined>,
+): number[] => {
+  const parentIds: number[] = [];
   let currentParentId = parentMap.get(permissionId);
   while (currentParentId !== undefined) {
     parentIds.push(currentParentId);
@@ -128,12 +137,15 @@ const getAllParentIds = (permissionId: string, parentMap: Map<string, string | u
 };
 
 // 获取所有子权限ID（递归向下查找）
-const getAllChildIds = (permissionId: string, permissions: Permission[]): string[] => {
-  const childIds: string[] = [];
+const getAllChildIds = (
+  permissionId: number,
+  permissions: PermissionTreeNode[],
+): number[] => {
+  const childIds: number[] = [];
   const findPermission = (
-    items: Permission[],
-    targetId: string
-  ): Permission | null => {
+    items: PermissionTreeNode[],
+    targetId: number,
+  ): PermissionTreeNode | null => {
     for (const item of items) {
       if (item.id === targetId) {
         return item;
@@ -147,7 +159,7 @@ const getAllChildIds = (permissionId: string, permissions: Permission[]): string
   };
   const permission = findPermission(permissions, permissionId);
   if (permission && permission.children) {
-    const traverse = (items: Permission[]) => {
+    const traverse = (items: PermissionTreeNode[]) => {
       items.forEach((item) => {
         childIds.push(item.id);
         if (item.children) {
@@ -161,8 +173,11 @@ const getAllChildIds = (permissionId: string, permissions: Permission[]): string
 };
 
 // 构建权限ID到父权限ID的映射关系
-const buildParentMap = (permissions: Permission[], parentId?: string): Map<string, string | undefined> => {
-  const map = new Map<string, string | undefined>();
+const buildParentMap = (
+  permissions: PermissionTreeNode[],
+  parentId?: number,
+): Map<number, number | undefined> => {
+  const map = new Map<number, number | undefined>();
   permissions.forEach((permission) => {
     map.set(permission.id, parentId);
     if (permission.children) {
@@ -171,16 +186,15 @@ const buildParentMap = (permissions: Permission[], parentId?: string): Map<strin
     }
   });
   return map;
-}
-
+};
 
 // 权限树组件
 interface PermissionTreeProps {
-  permissions: Permission[];
+  permissions: PermissionTreeNode[];
   loading: boolean;
   treeData: DataNode[];
-  value?: string[];
-  onChange?: (value: string[]) => void;
+  value?: number[];
+  onChange?: (value: number[]) => void;
 }
 
 const PermissionTree = ({
@@ -192,18 +206,22 @@ const PermissionTree = ({
 }: PermissionTreeProps) => {
   const { t } = useTranslation();
 
-  const handleCheck = (checkedKeys: React.Key[] | { checked: React.Key[]; halfChecked: React.Key[] }) => {
+  const checkedKeys: Key[] = value;
+
+  const handleCheck = (
+    checkedKeys: Key[] | { checked: Key[]; halfChecked: Key[] },
+  ) => {
     if (!onChange) return;
     // Tree 组件的 onCheck 回调可能返回数组或对象（checkStrictly 模式下返回数组）
     const keys = Array.isArray(checkedKeys) ? checkedKeys : checkedKeys.checked;
-    const newSelectedIds = keys as string[];
+    const newSelectedIds = keys.map(Number);
     // 构建父权限映射
     const parentMap = buildParentMap(permissions);
     // 找出新增和移除的权限ID
     const currentSelectedSet = new Set(value);
     const newSelectedSet = new Set(newSelectedIds);
-    const addedIds: string[] = [];
-    const removedIds: string[] = [];
+    const addedIds: number[] = [];
+    const removedIds: number[] = [];
     newSelectedSet.forEach((id) => {
       if (!currentSelectedSet.has(id)) {
         addedIds.push(id);
@@ -242,14 +260,13 @@ const PermissionTree = ({
     onChange(Array.from(finalSelectedIds));
   };
 
-
   return (
     <Spin spinning={loading}>
       {permissions.length > 0 ? (
         <Tree
           checkable
           checkStrictly
-          checkedKeys={value}
+          checkedKeys={checkedKeys}
           onCheck={handleCheck}
           treeData={treeData}
           defaultExpandAll
@@ -265,4 +282,3 @@ const PermissionTree = ({
 };
 
 export default PermissionConfig;
-

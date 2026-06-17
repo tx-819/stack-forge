@@ -4,8 +4,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { faker } from '@faker-js/faker';
 import { IPaginationParams } from '../interfaces/pagination.interface';
 import dayjs from 'dayjs';
+import type { BaseEntity, PaginationParams } from '@stack-forge/contracts';
 
-export class PaginationParamsDto implements IPaginationParams {
+export class PaginationParamsDto implements IPaginationParams, PaginationParams {
     @ApiProperty({
         example: 1,
     })
@@ -23,7 +24,7 @@ export class PaginationParamsDto implements IPaginationParams {
     pageSize: number;
 }
 
-export class BaseDto {
+export class BaseDto implements BaseEntity {
     @ApiProperty({
         example: 1,
     })
@@ -33,14 +34,12 @@ export class BaseDto {
     @ApiProperty({
         example: faker.date.past().toISOString(),
     })
-    @IsDate()
     @Transform(({ value }) => dayjs(value).format('YYYY-MM-DD HH:mm:ss'))
-    createdAt: Date;
+    createdAt: string;
 
     @ApiProperty({
         example: faker.date.recent().toISOString(),
     })
-    @IsDate()
     @Transform(({ value }) => dayjs(value).format('YYYY-MM-DD HH:mm:ss'))
-    updatedAt: Date;
+    updatedAt: string;
 }

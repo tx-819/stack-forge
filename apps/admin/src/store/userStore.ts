@@ -15,9 +15,16 @@ interface userStore extends UserInfo {
 const initialState = {
   id: 0,
   username: "",
+  email: null,
   nickname: "",
   avatar: "",
+  phone: null,
+  openid: null,
+  unionid: null,
+  status: false,
   isSuper: false,
+  createdAt: "",
+  updatedAt: "",
   token: "",
   isLogin: false,
   authActions: [],
@@ -28,7 +35,7 @@ export const useUserStore = create<userStore>()(
     (set) => ({
       ...initialState,
       setUser: (user: UserInfo | null) => {
-        set({ ...user });
+        set(user ? { ...user } : { ...initialState });
       },
       setAuthActions: (authActions: AuthAction[]) => {
         set({ authActions });

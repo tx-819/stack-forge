@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { IsArray, IsNumber, ValidateNested } from 'class-validator';
+import type { PaginatedData } from '@stack-forge/contracts';
 
 export class ApiPaginationMetadataDto {
     @ApiProperty({ description: 'Page number', example: 1 })
@@ -24,7 +25,7 @@ export class ApiPaginationMetadataDto {
     totalPages: number;
 }
 
-export class ApiPaginatedDataDto<T> {
+export class ApiPaginatedDataDto<T> implements PaginatedData<T> {
     @ApiProperty({ description: 'Array of data items', isArray: true })
     @IsArray()
     @ValidateNested({ each: true })

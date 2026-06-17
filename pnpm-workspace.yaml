@@ -1,3 +1,3 @@
 packages:
-  - "apps/api"
-  - "apps/admin"
+  - "apps/*"
+  - "packages/*"

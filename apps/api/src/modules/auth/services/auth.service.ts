@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from 'src/modules/user/services/user.service';
 import { TokenService } from './token.service';
-import { UserDto } from 'src/modules/user/dtos/user.dto';
+import { CreateUserDto, UserDto } from 'src/modules/user/dtos/user.dto';
 import { compare } from 'bcrypt';
 import { RoleService } from 'src/modules/role/services/role.service';
 import { User } from 'src/generated/prisma/client';
@@ -25,6 +25,7 @@ import { renderMagicLoginEmail } from 'src/common/email/templates/magic-login.te
 import { EmailService } from 'src/common/email/services/email.service';
 import { ROLE_CODE_USER } from 'src/modules/role/constants/role.constant';
 import { WechatService, WechatPhoneInfo } from './wechat.service';
+import { toUserDto } from 'src/common/helper/dtos/mapper';
 
 @Injectable()
 export class AuthService {
@@ -65,7 +66,7 @@ export class AuthService {
         return result;
     }
 
-    async register(registerDto: RegisterDto): Promise<UserDto> {
+    async register(registerDto: RegisterDto | CreateUserDto): Promise<UserDto> {
         const user = await this.userService.findOne(registerDto.username);
         if (user) {
             throw new BadRequestException('User already exists');
@@ -85,8 +86,7 @@ export class AuthService {
         if (!created) {
             throw new BadRequestException('User creation failed');
         }
-        const { password: _password, ...result } = created;
-        return result as UserDto;
+        return toUserDto(created);
     }
 
     async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
@@ -112,7 +112,7 @@ export class AuthService {
     async wechatMiniLogin(code: string): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: User;
+        user: UserDto;
     }> {
         const { openid, unionid } = await this.wechatService.code2Session(code);
 
@@ -134,7 +134,7 @@ export class AuthService {
 
         const { accessToken, refreshToken } =
             await this.tokenService.generateToken(user);
-        return { accessToken, refreshToken, user };
+        return { accessToken, refreshToken, user: toUserDto(user) };
     }
 
     /** 更新微信用户资料（头像昵称填写能力） */
@@ -143,8 +143,7 @@ export class AuthService {
         dto: UpdateWechatProfileDto
     ): Promise<UserDto> {
         const user = await this.userService.updateProfile(userId, dto);
-        const { password: _password, ...result } = user;
-        return result as UserDto;
+        return toUserDto(user);
     }
 
     /** 通过 getPhoneNumber 的 code 换取手机号并回填用户 */
@@ -163,8 +162,7 @@ export class AuthService {
         email: string
     ): Promise<UserDto> {
         const user = await this.userService.bindEmail(userId, email);
-        const { password: _password, ...result } = user;
-        return result as UserDto;
+        return toUserDto(user);
     }
 
     async getMenuTreeByUser(user: User): Promise<MenuTreeDto[]> {

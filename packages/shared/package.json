@@ -1,0 +1,26 @@
+{
+  "name": "@stack-forge/shared",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@stack-forge/contracts": "workspace:*",
+    "dayjs": "^1.11.19"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3"
+  }
+}

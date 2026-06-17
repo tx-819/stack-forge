@@ -3,40 +3,27 @@
  */
 
 import { post, get } from "../utils/request";
-import type { AuthAction, MenuRecord } from "./permission";
-/**
- * 用户信息（对应后端 UserDto）
- */
-export interface UserInfo {
-  id: number;
-  username: string;
-  nickname: string | null;
-  avatar: string | null;
-  isSuper: boolean;
-  email?: string | null;
-  phone?: string | null;
-  openid?: string | null;
-  unionid?: string | null;
-  status?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import type {
+  AuthAction,
+  LoginRequest,
+  LoginResponse,
+  MenuRecord,
+  RegisterRequest,
+  RegisterResponse,
+  User,
+} from "@stack-forge/contracts";
+
+export type UserInfo = User;
 
 /**
  * 登录请求参数
  */
-export interface LoginParams {
-  username: string;
-  password: string;
-}
+export type LoginParams = LoginRequest;
 
 /**
  * 登录响应数据（对应后端 AuthResponseDto）
  */
-export interface LoginResponse {
-  accessToken: string;
-  user: UserInfo;
-}
+export type { LoginResponse };
 
 /**
  * 用户登录
@@ -52,18 +39,12 @@ export const login = async (params: LoginParams): Promise<LoginResponse> => {
 /**
  * 注册请求参数
  */
-export interface RegisterParams {
-  username: string;
-  email: string;
-  password: string;
-  nickname?: string;
-  avatar?: string;
-}
+export type RegisterParams = RegisterRequest;
 
 /**
  * 注册响应数据（后端 register 直接返回 UserDto）
  */
-export type RegisterResponse = UserInfo;
+export type { RegisterResponse };
 
 /**
  * 用户注册

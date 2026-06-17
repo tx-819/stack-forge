@@ -12,6 +12,10 @@ import {
 import { Prisma } from 'src/generated/prisma/client';
 import { MenuTreeDto } from '../dtos/menu.dto';
 import { filter, groupBy, map as mapLodash, sortBy } from 'lodash';
+import {
+    toPermissionDto,
+    toPermissionTreeDto,
+} from 'src/common/helper/dtos/mapper';
 
 @Injectable()
 export class PermissionService {
@@ -33,10 +37,10 @@ export class PermissionService {
             .filter(p => p.parentId === parentId)
             .map(item => {
                 const children = this.buildTree(list, item.id);
-                return {
-                    ...item,
-                    children: children.length > 0 ? children : null,
-                };
+                return toPermissionTreeDto(
+                    item,
+                    children.length > 0 ? children : null
+                );
             });
     }
 
@@ -239,7 +243,7 @@ export class PermissionService {
                 menusByParentId
             );
             return {
-                ...menu,
+                ...toPermissionDto(menu),
                 children: children.length > 0 ? children : null,
             };
         });

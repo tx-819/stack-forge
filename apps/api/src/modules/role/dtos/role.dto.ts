@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { Role } from 'src/generated/prisma/client';
 import {
     IsArray,
     IsBoolean,
@@ -13,8 +12,15 @@ import {
 import { BaseDto } from 'src/common/helper/dtos';
 import { PickType } from '@nestjs/swagger';
 import { PaginationParamsDto } from 'src/common/helper/dtos';
+import type {
+    CreateRoleRequest,
+    Role as ContractRole,
+    RoleListQuery,
+    SetRolePermissionsRequest,
+    UpdateRoleRequest,
+} from '@stack-forge/contracts';
 
-export class RoleDto extends BaseDto implements Role {
+export class RoleDto extends BaseDto implements ContractRole {
     @ApiProperty({
         example: faker.person.jobTitle(),
     })
@@ -44,16 +50,16 @@ export class RoleDto extends BaseDto implements Role {
     status: boolean;
 }
 
-export class CreateRoleDto extends PickType(RoleDto, ['name', 'code', 'remark', 'status']) {
+export class CreateRoleDto extends PickType(RoleDto, ['name', 'code', 'remark', 'status']) implements CreateRoleRequest {
     @IsString()
     @IsNotEmpty()
     @MaxLength(50)
     code: string;
 }
 
-export class UpdateRoleDto extends PartialType(PickType(RoleDto, ['name', 'code', 'remark', 'status'])) {}
+export class UpdateRoleDto extends PartialType(PickType(RoleDto, ['name', 'code', 'remark', 'status'])) implements UpdateRoleRequest {}
 
-export class RoleListQueryDto extends PaginationParamsDto {
+export class RoleListQueryDto extends PaginationParamsDto implements RoleListQuery {
     @ApiProperty({
         example: faker.person.jobTitle(),
         required: false,
@@ -74,7 +80,7 @@ export class RoleListQueryDto extends PaginationParamsDto {
 }
 
 /** 为角色设置权限（会清空该角色原有权限） */
-export class SetRolePermissionsDto {
+export class SetRolePermissionsDto implements SetRolePermissionsRequest {
     @ApiProperty({ example: [1, 2, 3], description: '权限 id 列表' })
     @IsArray()
     @IsInt({ each: true })

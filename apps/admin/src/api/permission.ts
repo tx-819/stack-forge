@@ -1,47 +1,28 @@
 import { get, post, put, del } from "../utils/request";
+import type {
+  AuthAction,
+  CreatePermissionRequest,
+  MenuRecord,
+  Permission,
+  PermissionTree,
+  PermissionType,
+  UpdatePermissionRequest,
+} from "@stack-forge/contracts";
 
-// 权限类型
-export type PermissionType = "menu" | "action";
-
-export interface MenuRecord extends Omit<Permission, "code"> {
-  children?: MenuRecord[];
-}
-
-export interface ActionItem {
-  name: string;
-  code: string;
-}
-
-export interface AuthAction {
-  pathname: string;
-  actions: ActionItem[];
-}
-
-/**
- * 权限项接口（用于权限管理页面）
- */
-export interface Permission {
-  id: string;
-  path: string;
-  name: string;
-  code?: string;
-  permissionType: PermissionType;
-  component?: string;
-  parentId?: string | null;
-  icon?: string;
-  orderNo?: number;
-  status?: boolean;
-  remark?: string;
-  children?: Permission[];
-  key?: string; // 用于表格的 key
-}
+export type {
+  AuthAction,
+  MenuRecord,
+  Permission,
+  PermissionTree,
+  PermissionType,
+};
 
 /**
  * 获取权限列表
  * @returns 权限列表
  */
-export const getPermissionTreeApi = async (): Promise<Permission[]> => {
-  return get<Permission[]>("/permission/tree");
+export const getPermissionTreeApi = async (): Promise<PermissionTree[]> => {
+  return get<PermissionTree[]>("/permission/tree");
 };
 
 /**
@@ -49,7 +30,9 @@ export const getPermissionTreeApi = async (): Promise<Permission[]> => {
  * @param params 权限参数
  * @returns 创建的权限数据
  */
-export const createPermissionApi = async (params: Partial<Permission>) => {
+export const createPermissionApi = async (
+  params: Partial<CreatePermissionRequest>,
+) => {
   return post("/permission", params);
 };
 
@@ -60,8 +43,8 @@ export const createPermissionApi = async (params: Partial<Permission>) => {
  * @returns 更新的权限数据
  */
 export const updatePermissionApi = async (
-  id: string,
-  params: Partial<Permission>,
+  id: number,
+  params: UpdatePermissionRequest,
 ) => {
   return put(`/permission/${id}`, params);
 };
@@ -71,6 +54,6 @@ export const updatePermissionApi = async (
  * @param id 权限 ID
  * @returns 删除结果
  */
-export const deletePermissionApi = async (id: string) => {
+export const deletePermissionApi = async (id: number) => {
   return del(`/permission/${id}`);
 };

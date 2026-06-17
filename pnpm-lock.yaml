@@ -13,6 +13,12 @@ importers:
       '@ant-design/icons':
         specifier: ^6.1.0
         version: 6.2.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@stack-forge/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@stack-forge/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.3.0(vite@7.3.3(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0))
@@ -155,6 +161,12 @@ importers:
       '@prisma/client':
         specifier: ^7.4.2
         version: 7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3))(typescript@5.9.3)
+      '@stack-forge/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@stack-forge/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
@@ -309,6 +321,27 @@ importers:
       typescript-eslint:
         specifier: ^8.20.0
         version: 8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+
+  packages/config: {}
+
+  packages/contracts:
+    devDependencies:
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+
+  packages/shared:
+    dependencies:
+      '@stack-forge/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      dayjs:
+        specifier: ^1.11.19
+        version: 1.11.21
+    devDependencies:
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
 
 packages:
 

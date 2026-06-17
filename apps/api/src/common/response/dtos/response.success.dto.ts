@@ -3,8 +3,9 @@ import { Expose, Type } from 'class-transformer';
 import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 
 import { IApiSuccessResponse } from '../interfaces/response.interface';
+import type { ApiResponse } from '@stack-forge/contracts';
 
-export class ApiSuccessResponseDto<T> implements IApiSuccessResponse<T> {
+export class ApiSuccessResponseDto<T> implements IApiSuccessResponse<T>, ApiResponse<T> {
     @ApiProperty({ description: 'HTTP status code', example: 200 })
     @Expose()
     @IsNumber()

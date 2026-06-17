@@ -1,0 +1,11 @@
+{
+  "name": "@stack-forge/config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig/base": "./tsconfig/base.json",
+    "./eslint/base": "./eslint/base.js",
+    "./prettier/base": "./prettier/base.json"
+  }
+}

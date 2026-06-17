@@ -11,6 +11,8 @@ import {
 } from '../dtos/role.dto';
 import { HelperPaginationService } from 'src/common/helper/services/helper.pagination.service';
 import { Prisma } from 'src/generated/prisma/client';
+import { toPermissionDto, toRoleDto } from 'src/common/helper/dtos/mapper';
+import { PermissionDto } from 'src/modules/permission/dtos/permission.dto';
 
 @Injectable()
 export class RoleService {
@@ -40,9 +42,17 @@ export class RoleService {
                 : {}),
         };
 
-        return await this.helperPaginationService.paginate(this.prisma.role, pagination, {
-            where,
-        });
+        const result = await this.helperPaginationService.paginate<Role>(
+            this.prisma.role,
+            pagination,
+            {
+                where,
+            }
+        );
+        return {
+            ...result,
+            list: result.list.map(role => toRoleDto(role)),
+        };
     }
 
     async detail(id: number): Promise<Role> {
@@ -65,7 +75,7 @@ export class RoleService {
         const role = await this.prisma.role.create({
             data: createDto,
         });
-        return role;
+        return toRoleDto(role);
     }
 
     async update(id: number, updateDto: UpdateRoleDto): Promise<void> {
@@ -80,13 +90,13 @@ export class RoleService {
         await this.prisma.role.delete({ where: { id } });
     }
 
-    async getPermissions(roleId: number): Promise<Permission[]> {
+    async getPermissions(roleId: number): Promise<PermissionDto[]> {
         await this.detail(roleId);
         const list = await this.prisma.rolePermission.findMany({
             where: { roleId },
             include: { permission: true },
         });
-        return list.map(item => item.permission);
+        return list.map(item => toPermissionDto(item.permission));
     }
 
     async setPermissions(

@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { User } from 'src/generated/prisma/client';
 import { Exclude, Type } from 'class-transformer';
 import {
     IsEmail,
@@ -14,8 +13,15 @@ import {
 import { BaseDto, PaginationParamsDto } from 'src/common/helper/dtos';
 import { PickType } from '@nestjs/swagger';
 import { RoleDto } from 'src/modules/role/dtos/role.dto';
+import type {
+    CreateUserRequest,
+    UpdateUserRequest,
+    User as ContractUser,
+    UserListQuery,
+    UserWithRoles,
+} from '@stack-forge/contracts';
 
-export class UserDto extends BaseDto implements User {
+export class UserDto extends BaseDto implements ContractUser {
     @ApiProperty({
         example: faker.internet.email(),
         required: false,
@@ -83,7 +89,7 @@ export class UserDto extends BaseDto implements User {
 
     @ApiHideProperty()
     @Exclude()
-    password: string | null;
+    password?: string | null;
 
     @ApiProperty({
         example: faker.helpers.arrayElement([true, false]),
@@ -97,7 +103,7 @@ export class CreateUserDto extends PickType(UserDto, [
     'username',
     'nickname',
     'avatar',
-]) {
+]) implements CreateUserRequest {
     @ApiProperty({
         example: faker.internet.email(),
     })
@@ -117,7 +123,18 @@ export class CreateUserDto extends PickType(UserDto, [
     @IsArray()
     @IsInt({ each: true })
     @IsOptional()
-    rolesIds: number[];
+    roleIds?: number[];
+
+    @ApiProperty({
+        example: [1],
+        required: false,
+        deprecated: true,
+        description: 'Deprecated. Use roleIds instead.',
+    })
+    @IsArray()
+    @IsInt({ each: true })
+    @IsOptional()
+    rolesIds?: number[];
 }
 
 export class UpdateUserDto extends PickType(UserDto, [
@@ -125,17 +142,17 @@ export class UpdateUserDto extends PickType(UserDto, [
     'email',
     'avatar',
     'status',
-]) {
+]) implements UpdateUserRequest {
     @ApiProperty({
         example: [1],
     })
     @IsArray()
     @IsInt({ each: true })
     @IsOptional()
-    roleIds: number[];
+    roleIds?: number[];
 }
 
-export class UserListQueryDto extends PaginationParamsDto {
+export class UserListQueryDto extends PaginationParamsDto implements UserListQuery {
     @ApiProperty({
         example: faker.internet.username(),
         required: false,
@@ -155,7 +172,7 @@ export class UserListQueryDto extends PaginationParamsDto {
     nickname?: string;
 }
 
-export class UserWithRolesDto extends UserDto {
+export class UserWithRolesDto extends UserDto implements UserWithRoles {
     @ApiProperty({
         type: [RoleDto],
     })

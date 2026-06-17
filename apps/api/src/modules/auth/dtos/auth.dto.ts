@@ -10,12 +10,21 @@ import {
 import { UserDto } from 'src/modules/user/dtos/user.dto';
 import { Type } from 'class-transformer';
 import { faker } from '@faker-js/faker';
+import type {
+    ActionItem,
+    AuthAction,
+    LoginRequest,
+    LoginResponse,
+    RegisterRequest,
+    SendLoginEmailRequest,
+    WechatAuthResponse,
+} from '@stack-forge/contracts';
 
 export class RegisterDto extends PickType(UserDto, [
     'username',
     'nickname',
     'avatar',
-]) {
+]) implements RegisterRequest {
     @ApiProperty({
         example: faker.internet.email(),
     })
@@ -39,7 +48,7 @@ export class RegisterDto extends PickType(UserDto, [
     rolesIds: number[];
 }
 
-export class LoginDto {
+export class LoginDto implements LoginRequest {
     @ApiProperty({ description: '用户名', example: 'admin' })
     @IsString()
     @IsNotEmpty()
@@ -51,7 +60,7 @@ export class LoginDto {
     password: string;
 }
 
-export class AuthResponseDto {
+export class AuthResponseDto implements LoginResponse {
     @ApiProperty({ description: '访问令牌' })
     @IsString()
     @IsNotEmpty()
@@ -62,7 +71,7 @@ export class AuthResponseDto {
     user: UserDto;
 }
 
-export class SendLoginEmailDto {
+export class SendLoginEmailDto implements SendLoginEmailRequest {
     @ApiProperty({ description: '邮箱', example: 'test@example.com' })
     @IsEmail()
     @IsNotEmpty()
@@ -76,7 +85,7 @@ export class WechatMiniLoginDto {
     code: string;
 }
 
-export class WechatAuthResponseDto extends AuthResponseDto {
+export class WechatAuthResponseDto extends AuthResponseDto implements WechatAuthResponse {
     @ApiProperty({
         description: '刷新令牌（小程序不支持 Cookie 时返回）',
         required: false,
@@ -114,7 +123,7 @@ export class BindEmailDto {
     email: string;
 }
 
-export class ActionDto {
+export class ActionDto implements ActionItem {
     @ApiProperty({ description: '权限标识' })
     @IsString()
     @IsNotEmpty()
@@ -126,7 +135,7 @@ export class ActionDto {
     name: string;
 }
 
-export class ActionListDto {
+export class ActionListDto implements AuthAction {
     @ApiProperty({ description: '页面路径（全路径）' })
     @IsString()
     @IsNotEmpty()

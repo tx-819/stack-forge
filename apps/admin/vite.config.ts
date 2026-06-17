@@ -19,6 +19,14 @@ export default defineConfig(() => {
       alias: {
         "@": path.resolve(__dirname, "./src"),
         src: path.resolve(__dirname, "./src"),
+        "@stack-forge/contracts": path.resolve(
+          __dirname,
+          "../../packages/contracts/src",
+        ),
+        "@stack-forge/shared": path.resolve(
+          __dirname,
+          "../../packages/shared/src",
+        ),
       },
     },
     server: {

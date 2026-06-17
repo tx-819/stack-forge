@@ -5,6 +5,8 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 
+const tsconfigRootDir = import.meta.dirname;
+
 export default defineConfig([
   globalIgnores(["dist"]),
   {
@@ -18,6 +20,10 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        project: ["./tsconfig.app.json", "./tsconfig.node.json"],
+        tsconfigRootDir,
+      },
     },
     rules: {
       "react-hooks/set-state-in-effect": "off",
