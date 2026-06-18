@@ -7,6 +7,7 @@ dist/
 build/
 dist-ssr/
 unpackage/
+*.tsbuildinfo
 
 # Logs
 logs
