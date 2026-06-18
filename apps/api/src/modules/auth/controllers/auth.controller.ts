@@ -118,7 +118,7 @@ export class AuthController {
     @Get('/me')
     @ApiOperation({ summary: '获取当前用户' })
     @DocResponse({ serialization: UserDto })
-    me(@ReqUser() user: User): Promise<UserDto> {
+    me(@ReqUser() user: User) {
         return this.authService.me(user.id);
     }
 
@@ -140,7 +140,7 @@ export class AuthController {
     @ApiOperation({ summary: '用户注册' })
     @DocResponse({ serialization: UserDto, isPublic: true })
     @Public()
-    register(@Body() registerDto: CreateUserDto): Promise<UserDto> {
+    register(@Body() registerDto: CreateUserDto) {
         return this.authService.register(registerDto);
     }
 

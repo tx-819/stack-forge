@@ -19,7 +19,6 @@ import {
     UpdateRoleDto,
     RoleListQueryDto,
 } from '../dtos/role.dto';
-import { ApiPaginatedDataDto } from 'src/common/response/dtos/response.paginated.dto';
 import { DocResponse } from 'src/common/doc/decorators/doc.response.decorator';
 import { PermissionDto } from 'src/modules/permission/dtos/permission.dto';
 
@@ -30,9 +29,7 @@ export class RoleController {
     @Get('/page')
     @ApiOperation({ summary: '获取角色列表' })
     @DocPaginatedResponse({ serialization: RoleDto })
-    getRoles(
-        @Query() query: RoleListQueryDto
-    ): Promise<ApiPaginatedDataDto<RoleDto>> {
+    getRoles(@Query() query: RoleListQueryDto) {
         return this.roleService.getRoles(query);
     }
 
@@ -55,7 +52,7 @@ export class RoleController {
 
     @Get(':id')
     @ApiOperation({ summary: '获取角色详情' })
-    @DocResponse()
+    @DocResponse({ serialization: RoleDto })
     getRoleDetail(@Param('id', ParseIntPipe) id: number) {
         return this.roleService.detail(id);
     }

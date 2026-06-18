@@ -5,21 +5,11 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { User, Role } from 'src/generated/prisma/client';
-import { ApiPaginatedDataDto } from 'src/common/response/dtos/response.paginated.dto';
-import {
-    CreateUserDto,
-    UserDto,
-    UpdateUserDto,
-    UserWithRolesDto,
-} from '../dtos/user.dto';
+import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 import { HelperPaginationService } from 'src/common/helper/services/helper.pagination.service';
 import { Prisma } from 'src/generated/prisma/client';
 import { UserListQueryDto } from '../dtos/user.dto';
 import { hash } from 'bcrypt';
-import {
-    toUserDto,
-    toUserWithRolesDto,
-} from 'src/common/helper/dtos/mapper';
 
 @Injectable()
 export class UserService {
@@ -28,9 +18,7 @@ export class UserService {
         private helperPaginationService: HelperPaginationService
     ) {}
 
-    async getUsers(
-        query: UserListQueryDto
-    ): Promise<ApiPaginatedDataDto<UserWithRolesDto>> {
+    async getUsers(query: UserListQueryDto) {
         const { username, nickname, ...pagination } = query;
         const where: Prisma.UserWhereInput = {
             ...(username
@@ -59,7 +47,7 @@ export class UserService {
         });
         return {
             ...result,
-            list: result.list.map(user => toUserWithRolesDto(user)),
+            list: result.list,
         };
     }
 
@@ -195,11 +183,11 @@ export class UserService {
         await this.prisma.user.delete({ where: { id } });
     }
 
-    async detailDto(id: number): Promise<UserDto> {
-        return toUserDto(await this.detail(id));
+    async detailDto(id: number) {
+        return await this.detail(id);
     }
 
-    async detailWithRoles(id: number): Promise<UserWithRolesDto> {
+    async detailWithRoles(id: number) {
         const user = await this.prisma.user.findUnique({
             where: { id },
             include: { roles: { include: { role: true } } },
@@ -207,6 +195,6 @@ export class UserService {
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        return toUserWithRolesDto(user);
+        return user;
     }
 }

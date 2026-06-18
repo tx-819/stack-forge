@@ -18,7 +18,6 @@ import {
     UserListQueryDto,
     UserWithRolesDto,
 } from '../dtos/user.dto';
-import { ApiPaginatedDataDto } from 'src/common/response/dtos/response.paginated.dto';
 import { DocResponse } from 'src/common/doc/decorators/doc.response.decorator';
 
 @Controller('user')
@@ -28,9 +27,7 @@ export class UserController {
     @Get('/page')
     @ApiOperation({ summary: '获取用户列表' })
     @DocPaginatedResponse({ serialization: UserWithRolesDto })
-    getUsers(
-        @Query() query: UserListQueryDto
-    ): Promise<ApiPaginatedDataDto<UserWithRolesDto>> {
+    getUsers(@Query() query: UserListQueryDto) {
         return this.userService.getUsers(query);
     }
 

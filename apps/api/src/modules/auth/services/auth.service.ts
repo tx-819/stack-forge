@@ -25,7 +25,6 @@ import { renderMagicLoginEmail } from 'src/common/email/templates/magic-login.te
 import { EmailService } from 'src/common/email/services/email.service';
 import { ROLE_CODE_USER } from 'src/modules/role/constants/role.constant';
 import { WechatService, WechatPhoneInfo } from './wechat.service';
-import { toUserDto } from 'src/common/helper/dtos/mapper';
 
 @Injectable()
 export class AuthService {
@@ -66,7 +65,7 @@ export class AuthService {
         return result;
     }
 
-    async register(registerDto: RegisterDto | CreateUserDto): Promise<UserDto> {
+    async register(registerDto: RegisterDto | CreateUserDto) {
         const user = await this.userService.findOne(registerDto.username);
         if (user) {
             throw new BadRequestException('User already exists');
@@ -86,7 +85,7 @@ export class AuthService {
         if (!created) {
             throw new BadRequestException('User creation failed');
         }
-        return toUserDto(created);
+        return created;
     }
 
     async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
@@ -101,7 +100,7 @@ export class AuthService {
         return { accessToken };
     }
 
-    async me(userId: number): Promise<UserDto> {
+    async me(userId: number) {
         return this.userService.detailWithRoles(userId);
     }
 
@@ -109,11 +108,7 @@ export class AuthService {
      * 微信小程序登录：code 换 openid -> 查找或创建用户 -> 生成自定义登录态。
      * session_key 用完即弃，不保存、不下发。
      */
-    async wechatMiniLogin(code: string): Promise<{
-        accessToken: string;
-        refreshToken: string;
-        user: UserDto;
-    }> {
+    async wechatMiniLogin(code: string) {
         const { openid, unionid } = await this.wechatService.code2Session(code);
 
         let user = await this.userService.findByOpenid(openid);
@@ -134,16 +129,17 @@ export class AuthService {
 
         const { accessToken, refreshToken } =
             await this.tokenService.generateToken(user);
-        return { accessToken, refreshToken, user: toUserDto(user) };
+        return {
+            accessToken,
+            refreshToken,
+            user: user,
+        };
     }
 
     /** 更新微信用户资料（头像昵称填写能力） */
-    async updateWechatProfile(
-        userId: number,
-        dto: UpdateWechatProfileDto
-    ): Promise<UserDto> {
+    async updateWechatProfile(userId: number, dto: UpdateWechatProfileDto) {
         const user = await this.userService.updateProfile(userId, dto);
-        return toUserDto(user);
+        return user;
     }
 
     /** 通过 getPhoneNumber 的 code 换取手机号并回填用户 */
@@ -157,12 +153,9 @@ export class AuthService {
     }
 
     /** 微信用户绑定真实邮箱 */
-    async bindWechatUserEmail(
-        userId: number,
-        email: string
-    ): Promise<UserDto> {
+    async bindWechatUserEmail(userId: number, email: string) {
         const user = await this.userService.bindEmail(userId, email);
-        return toUserDto(user);
+        return user;
     }
 
     async getMenuTreeByUser(user: User): Promise<MenuTreeDto[]> {

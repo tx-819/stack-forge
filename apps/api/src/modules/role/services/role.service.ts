@@ -1,18 +1,14 @@
 import { PrismaService } from 'src/common/database/services/database.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Permission, Role, User } from 'src/generated/prisma/client';
-import { ApiPaginatedDataDto } from 'src/common/response/dtos/response.paginated.dto';
+import { Role, User } from 'src/generated/prisma/client';
 import {
     CreateRoleDto,
     UpdateRoleDto,
-    RoleDto,
     RoleListQueryDto,
     SetRolePermissionsDto,
 } from '../dtos/role.dto';
 import { HelperPaginationService } from 'src/common/helper/services/helper.pagination.service';
 import { Prisma } from 'src/generated/prisma/client';
-import { toPermissionDto, toRoleDto } from 'src/common/helper/dtos/mapper';
-import { PermissionDto } from 'src/modules/permission/dtos/permission.dto';
 
 @Injectable()
 export class RoleService {
@@ -21,9 +17,7 @@ export class RoleService {
         private helperPaginationService: HelperPaginationService
     ) {}
 
-    async getRoles(
-        query: RoleListQueryDto
-    ): Promise<ApiPaginatedDataDto<RoleDto>> {
+    async getRoles(query: RoleListQueryDto) {
         const { name, code, ...pagination } = query;
         const where: Prisma.RoleWhereInput = {
             ...(name
@@ -51,7 +45,7 @@ export class RoleService {
         );
         return {
             ...result,
-            list: result.list.map(role => toRoleDto(role)),
+            list: result.list,
         };
     }
 
@@ -71,11 +65,10 @@ export class RoleService {
         });
     }
 
-    async create(createDto: CreateRoleDto): Promise<RoleDto> {
-        const role = await this.prisma.role.create({
+    async create(createDto: CreateRoleDto) {
+        await this.prisma.role.create({
             data: createDto,
         });
-        return toRoleDto(role);
     }
 
     async update(id: number, updateDto: UpdateRoleDto): Promise<void> {
@@ -90,13 +83,13 @@ export class RoleService {
         await this.prisma.role.delete({ where: { id } });
     }
 
-    async getPermissions(roleId: number): Promise<PermissionDto[]> {
+    async getPermissions(roleId: number) {
         await this.detail(roleId);
         const list = await this.prisma.rolePermission.findMany({
             where: { roleId },
             include: { permission: true },
         });
-        return list.map(item => toPermissionDto(item.permission));
+        return list;
     }
 
     async setPermissions(
