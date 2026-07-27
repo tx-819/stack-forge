@@ -38,7 +38,7 @@ function SearchFormInner(
 
   return (
     <div
-      className="rounded-lg shadow-md p-4 mb-4"
+      className="rounded-lg shadow-md pt-4 px-4 mb-4"
       style={{ background: colorBgContainer }}
     >
       <Form form={form} {...formProps}>
@@ -53,7 +53,11 @@ function SearchFormInner(
               </Col>
             );
           })}
-          <Col span={8} offset={(2 - (displayItems.length % 3)) * 8}>
+          <Col
+            className="pb-4"
+            span={8}
+            offset={(2 - (displayItems.length % 3)) * 8}
+          >
             <ActionButtons
               showSearchButton={searchOptions.showSearchButton}
               searchText={searchOptions.searchText}
