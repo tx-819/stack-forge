@@ -1,17 +1,28 @@
 import { create } from "zustand";
 import type { MenuRecord } from "@/api/permission";
 import type { ItemType } from "antd/es/menu/interface";
-import { collectNormalizedMenuPaths, normalizeMenuPath } from "@/utils/menuPaths";
+import { collectNormalizedMenuPaths, joinToFullMenuPath } from "@/utils/menuItems";
 import { getIcon } from "@/utils/renderIcon";
 
 // 菜单转换函数
-const transformMenuItems = (routes: MenuRecord[]): ItemType[] => {
-  return routes.map((r) => ({
-    key: r.path ? normalizeMenuPath(r.path) : String(r.id),
-    icon: r.icon ? getIcon(r.icon, { size: 16 }) : undefined,
-    label: r.name,
-    children: r.children ? transformMenuItems(r.children) : undefined,
-  }));
+const transformMenuItems = (
+  routes: MenuRecord[],
+  parentFull = "",
+): ItemType[] => {
+  return routes.map((r) => {
+    const fullForChildren = r.path
+      ? joinToFullMenuPath(parentFull, r.path)
+      : parentFull;
+
+    return {
+      key: r.path ? fullForChildren : String(r.id),
+      icon: r.icon ? getIcon(r.icon, { size: 16 }) : undefined,
+      label: r.name,
+      children: r.children?.length
+        ? transformMenuItems(r.children, fullForChildren)
+        : undefined,
+    };
+  });
 };
 
 interface MenuStore {

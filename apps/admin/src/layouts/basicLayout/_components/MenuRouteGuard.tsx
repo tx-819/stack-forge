@@ -1,7 +1,7 @@
 import { Navigate, useLocation, useOutlet } from "react-router-dom";
 import { useUserStore } from "@/store/userStore";
 import { useMenuStore } from "@/store/menuStore";
-import { normalizeMenuPath } from "@/utils/menuPaths";
+import { normalizeMenuPath } from "@/utils/menuItems";
 import Forbidden403 from "@/components/Forbidden403";
 import RouteTransition from "./RouteTransition";
 

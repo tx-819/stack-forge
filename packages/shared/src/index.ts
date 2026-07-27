@@ -3,4 +3,3 @@ export * from './object';
 export * from './pagination';
 export * from './permission';
 export * from './tree';
-export * from './menu-paths';
