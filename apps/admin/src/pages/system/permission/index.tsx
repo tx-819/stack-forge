@@ -1,10 +1,18 @@
 import { useRef, useCallback, useMemo } from "react";
-import { Space, Button, Modal, message, Form, Input, Switch, InputNumber, Row, Col, Radio } from "antd";
 import {
-  EditOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+  Space,
+  Button,
+  Modal,
+  message,
+  Form,
+  Input,
+  Switch,
+  InputNumber,
+  Row,
+  Col,
+  Radio,
+} from "antd";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
 import ProTable from "@/components/ProTable";
@@ -53,7 +61,7 @@ const Permission = () => {
         },
       });
     },
-    [t]
+    [t],
   );
 
   // 渲染表单内容
@@ -67,8 +75,12 @@ const Permission = () => {
             labelCol={{ span: 3 }}
           >
             <Radio.Group disabled={permissionType === "action"}>
-              <Radio.Button value="menu">{t("permission.typeMenu")}</Radio.Button>
-              <Radio.Button value="action">{t("permission.typeAction")}</Radio.Button>
+              <Radio.Button value="menu">
+                {t("permission.typeMenu")}
+              </Radio.Button>
+              <Radio.Button value="action">
+                {t("permission.typeAction")}
+              </Radio.Button>
             </Radio.Group>
           </Form.Item>
         </Col>
@@ -77,12 +89,19 @@ const Permission = () => {
             name="name"
             label={t("permission.name")}
             labelCol={{ span: 6 }}
-            rules={[{ required: true, message: t("permission.rules.nameRequired") }]}
+            rules={[
+              { required: true, message: t("permission.rules.nameRequired") },
+            ]}
           >
             <Input placeholder={t("permission.placeholder.name")} />
           </Form.Item>
         </Col>
-        <Form.Item shouldUpdate={(prev, current) => prev?.permissionType !== current?.permissionType} noStyle>
+        <Form.Item
+          shouldUpdate={(prev, current) =>
+            prev?.permissionType !== current?.permissionType
+          }
+          noStyle
+        >
           {({ getFieldValue }) => {
             const permissionType = getFieldValue("permissionType");
             if (permissionType === "menu") {
@@ -93,7 +112,12 @@ const Permission = () => {
                       name="path"
                       label={t("permission.path")}
                       labelCol={{ span: 6 }}
-                      rules={[{ required: true, message: t("permission.rules.pathRequired") }]}
+                      rules={[
+                        {
+                          required: true,
+                          message: t("permission.rules.pathRequired"),
+                        },
+                      ]}
                     >
                       <Input placeholder={t("permission.placeholder.path")} />
                     </Form.Item>
@@ -104,7 +128,9 @@ const Permission = () => {
                       label={t("permission.componentPath")}
                       labelCol={{ span: 6 }}
                     >
-                      <Input placeholder={t("permission.placeholder.componentPath")} />
+                      <Input
+                        placeholder={t("permission.placeholder.componentPath")}
+                      />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
@@ -121,7 +147,11 @@ const Permission = () => {
             }
             return (
               <Col span={12}>
-                <Form.Item name="code" label={t("permission.code")} labelCol={{ span: 6 }}>
+                <Form.Item
+                  name="code"
+                  label={t("permission.code")}
+                  labelCol={{ span: 6 }}
+                >
                   <Input placeholder={t("permission.placeholder.code")} />
                 </Form.Item>
               </Col>
@@ -150,20 +180,13 @@ const Permission = () => {
           </Form.Item>
         </Col>
         <Col span={24}>
-          <Form.Item
-            name="remark"
-            label={t("remark")}
-            labelCol={{ span: 3 }}
-          >
-            <TextArea
-              placeholder={t("remarkPlaceholder")}
-              rows={3}
-            />
+          <Form.Item name="remark" label={t("remark")} labelCol={{ span: 3 }}>
+            <TextArea placeholder={t("remarkPlaceholder")} rows={3} />
           </Form.Item>
         </Col>
       </Row>
     ),
-    [t]
+    [t],
   );
 
   // 表格列定义
@@ -217,11 +240,7 @@ const Permission = () => {
                   title={t("permission.createChild")}
                   width={1060}
                   trigger={
-                    <Button
-                      type="link"
-                      size="small"
-                      icon={<PlusOutlined />}
-                    >
+                    <Button type="link" size="small" icon={<PlusOutlined />}>
                       {t("permission.createChild")}
                     </Button>
                   }
@@ -257,25 +276,23 @@ const Permission = () => {
                 title={t("permission.edit")}
                 width={1060}
                 trigger={
-                  <Button
-                    type="link"
-                    size="small"
-                    icon={<EditOutlined />}
-                  >
+                  <Button type="link" size="small" icon={<EditOutlined />}>
                     {t("edit")}
                   </Button>
                 }
                 initialValues={record}
                 onSubmit={(values, { success, error }) => {
-                  updatePermissionApi(record.id, values).then(() => {
-                    success();
-                    // 刷新表格
-                    if (tableRef.current) {
-                      tableRef.current.refresh();
-                    }
-                  }).catch(() => {
-                    error(t("permission.message.updateError"));
-                  });
+                  updatePermissionApi(record.id, values)
+                    .then(() => {
+                      success();
+                      // 刷新表格
+                      if (tableRef.current) {
+                        tableRef.current.refresh();
+                      }
+                    })
+                    .catch(() => {
+                      error(t("permission.message.updateError"));
+                    });
                 }}
               >
                 {renderFormItems(true, record.permissionType)}
@@ -298,46 +315,11 @@ const Permission = () => {
         ),
       },
     ],
-    [t, handleDelete, renderFormItems]
+    [t, handleDelete, renderFormItems],
   );
 
   return (
     <>
-      <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t("permission.title")}</h2>
-        <Access code="create">
-          <DMForm<Partial<Permission>>
-            name="menuForm_create"
-            type="Modal"
-            title={t("permission.create")}
-            width={1060}
-            trigger={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-              >
-                {t("permission.create")}
-              </Button>
-            }
-            initialValues={{
-              permissionType: "menu"
-            }}
-            onSubmit={(values, { success, error }) => {
-              createPermissionApi(values).then(() => {
-                success();
-                // 刷新表格
-                if (tableRef.current) {
-                  tableRef.current.refresh();
-                }
-              }).catch(() => {
-                error(t("permission.message.createError"))
-              });
-            }}
-          >
-            {renderFormItems(false)}
-          </DMForm>
-        </Access>
-      </div >
       <ProTable<Permission>
         ref={tableRef}
         columns={columns}
@@ -345,14 +327,46 @@ const Permission = () => {
         loading={isPending || isFetching}
         pagination={false}
         size="middle"
-        title={t("permission.list")}
+        title={t("permission.title")}
+        toolBarRender={() => [
+          <Access code="create" key="create">
+            <DMForm<Partial<Permission>>
+              name="menuForm_create"
+              type="Modal"
+              title={t("permission.create")}
+              width={1060}
+              trigger={
+                <Button type="primary" icon={<PlusOutlined />}>
+                  {t("permission.create")}
+                </Button>
+              }
+              initialValues={{
+                permissionType: "menu",
+              }}
+              onSubmit={(values, { success, error }) => {
+                createPermissionApi(values)
+                  .then(() => {
+                    success();
+                    // 刷新表格
+                    if (tableRef.current) {
+                      tableRef.current.refresh();
+                    }
+                  })
+                  .catch(() => {
+                    error(t("permission.message.createError"));
+                  });
+              }}
+            >
+              {renderFormItems(false)}
+            </DMForm>
+          </Access>,
+        ]}
         options={{
           onRefresh: () => {
             queryClient.invalidateQueries({ queryKey: ["permissionTree"] });
           },
         }}
       />
-
     </>
   );
 };

@@ -344,42 +344,41 @@ const Users = () => {
 
   return (
     <>
-      <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t("users.title")}</h2>
-        <Access code="create">
-          <DMForm<CreateUserParams>
-            name="userForm_create"
-            type="Modal"
-            title={t("users.create")}
-            width={960}
-            trigger={
-              <Button type="primary" icon={<PlusOutlined />}>
-                {t("users.create")}
-              </Button>
-            }
-            onSubmit={(values, { success, error }) => {
-              createUserApi(values)
-                .then(() => {
-                  success();
-                  // 刷新表格
-                  if (tableRef.current) {
-                    tableRef.current.refresh();
-                  }
-                })
-                .catch(() => {
-                  error(t("users.message.createError"));
-                });
-            }}
-          >
-            {renderForm(false)}
-          </DMForm>
-        </Access>
-      </div>
       <ProTable<User, GetUserPageParams>
         ref={tableRef}
         columns={columns}
         request={getUserListApi}
-        title={t("users.list")}
+        title={t("users.title")}
+        toolBarRender={() => [
+          <Access code="create" key="create">
+            <DMForm<CreateUserParams>
+              name="userForm_create"
+              type="Modal"
+              title={t("users.create")}
+              width={960}
+              trigger={
+                <Button type="primary" icon={<PlusOutlined />}>
+                  {t("users.create")}
+                </Button>
+              }
+              onSubmit={(values, { success, error }) => {
+                createUserApi(values)
+                  .then(() => {
+                    success();
+                    // 刷新表格
+                    if (tableRef.current) {
+                      tableRef.current.refresh();
+                    }
+                  })
+                  .catch(() => {
+                    error(t("users.message.createError"));
+                  });
+              }}
+            >
+              {renderForm(false)}
+            </DMForm>
+          </Access>,
+        ]}
       />
     </>
   );

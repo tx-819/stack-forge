@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type {
   ColumnType,
   TablePaginationConfig,
@@ -56,6 +57,8 @@ export interface ProTableProps<
   options?: ProTableOptions;
   /** 表格标题 */
   title?: string | TableProps<T>["title"];
+  /** 表格工具栏操作区 */
+  toolBarRender?: false | (() => ReactNode[]);
   /** 搜索表单，默认为 true（自动显示），可传入 false 禁用或传入配置对象 */
   search?: false | true | SearchFormOptions;
   /** 表格列配置 */

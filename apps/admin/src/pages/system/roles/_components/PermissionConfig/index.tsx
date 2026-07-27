@@ -100,12 +100,13 @@ const PermissionConfig = ({
         const permissionIds = values.permissionIds || [];
         updateRolePermissionsApi(role.id, {
           permissionIds,
-        }).then(() => {
-          success();
-          if (onSuccess) {
-            onSuccess();
-          }
         })
+          .then(() => {
+            success();
+            if (onSuccess) {
+              onSuccess();
+            }
+          })
           .catch(() => {
             error(t("roles.message.updatePermissionsError"));
           });

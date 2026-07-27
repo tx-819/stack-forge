@@ -1,5 +1,5 @@
 import { useImperativeHandle, forwardRef, useMemo } from "react";
-import { Table } from "antd";
+import { Space, Table } from "antd";
 import Settings from "./_components/Settings";
 import useNormalizedProps from "./_hooks/useNormalizedProps";
 import type { ProTableProps, ProTableRef, ProTableRequestParams } from "./types";
@@ -20,6 +20,8 @@ function ProTableInner<T = unknown, P extends ProTableRequestParams = ProTableRe
     search: searchOptions,
     onSearch,
     onReset,
+    title,
+    toolBarRender,
     ...tableProps
   } = useNormalizedProps(props);
 
@@ -29,25 +31,30 @@ function ProTableInner<T = unknown, P extends ProTableRequestParams = ProTableRe
 
   const { token: { colorBgContainer } } = theme.useToken();
 
-  const renderTitle = () => {
-    const titleContent =
-      typeof tableProps.title === "function" ? (
-        tableProps.title(dataSource)
-      ) : (
-        <span className="text-lg font-bold">{tableProps.title}</span>
-      );
-    // 如果不需要显示任何按钮，直接返回原 title
-    if (!showRefresh && !showSizeChanger && !showColumnFilter) {
-      return () => titleContent;
+  const titleContent = useMemo(() => {
+    if (!title) {
+      return null;
     }
 
-    return () => (
-      <div className="flex justify-between items-center">
-        <span>{titleContent}</span>
-        <Settings {...settingsOptions} />
-      </div>
-    );
-  };
+    if (typeof title === "function") {
+      return title(dataSource);
+    }
+
+    return <span className="text-lg font-bold">{title}</span>;
+  }, [dataSource, title]);
+
+  const toolBarActions = useMemo(() => {
+    if (toolBarRender === false) {
+      return [];
+    }
+
+    return toolBarRender?.() ?? [];
+  }, [toolBarRender]);
+
+  const shouldShowSettings =
+    showRefresh || showSizeChanger || showColumnFilter;
+  const shouldShowToolBar =
+    !!titleContent || toolBarActions.length > 0 || shouldShowSettings;
 
   // 判断是否显示搜索表单：默认显示（当 search 不是 false 且有 formItem 的列时）
   const shouldShowSearch = useMemo(() => {
@@ -125,10 +132,18 @@ function ProTableInner<T = unknown, P extends ProTableRequestParams = ProTableRe
         />
       )}
       <div className="rounded-lg shadow-md p-4" style={{ background: colorBgContainer }}>
+        {shouldShowToolBar && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">{titleContent}</div>
+            <Space wrap>
+              {toolBarActions}
+              {shouldShowSettings && <Settings {...settingsOptions} />}
+            </Space>
+          </div>
+        )}
         <Table
           {...tableProps}
           columns={columns}
-          title={renderTitle()}
           dataSource={dataSource}
           loading={loading}
         />

@@ -1,5 +1,16 @@
 import { useRef, useCallback, useMemo } from "react";
-import { Tag, Space, Button, Modal, message, Form, Input, Row, Col, Switch } from "antd";
+import {
+  Tag,
+  Space,
+  Button,
+  Modal,
+  message,
+  Form,
+  Input,
+  Row,
+  Col,
+  Switch,
+} from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -49,7 +60,7 @@ const Roles = () => {
         },
       });
     },
-    [t]
+    [t],
   );
 
   // 渲染表单内容
@@ -94,20 +105,13 @@ const Roles = () => {
           </Form.Item>
         </Col>
         <Col span={24}>
-          <Form.Item
-            name="remark"
-            label={t("remark")}
-            labelCol={{ span: 3 }}
-          >
-            <Input.TextArea
-              placeholder={t("remarkPlaceholder")}
-              rows={4}
-            />
+          <Form.Item name="remark" label={t("remark")} labelCol={{ span: 3 }}>
+            <Input.TextArea placeholder={t("remarkPlaceholder")} rows={4} />
           </Form.Item>
         </Col>
       </Row>
     ),
-    [t]
+    [t],
   );
 
   // 表格列定义
@@ -179,11 +183,7 @@ const Roles = () => {
                 title={t("roles.edit")}
                 width={860}
                 trigger={
-                  <Button
-                    type="link"
-                    size="small"
-                    icon={<EditOutlined />}
-                  >
+                  <Button type="link" size="small" icon={<EditOutlined />}>
                     {t("edit")}
                   </Button>
                 }
@@ -194,15 +194,17 @@ const Roles = () => {
                   remark: record.remark || "",
                 }}
                 onSubmit={(values, { success, error }) => {
-                  updateRoleApi(record.id, values).then(() => {
-                    success();
-                    // 刷新表格
-                    if (tableRef.current) {
-                      tableRef.current.refresh();
-                    }
-                  }).catch(() => {
-                    error(t("roles.message.updateError"));
-                  });
+                  updateRoleApi(record.id, values)
+                    .then(() => {
+                      success();
+                      // 刷新表格
+                      if (tableRef.current) {
+                        tableRef.current.refresh();
+                      }
+                    })
+                    .catch(() => {
+                      error(t("roles.message.updateError"));
+                    });
                 }}
               >
                 {renderFormItems(true)}
@@ -211,11 +213,7 @@ const Roles = () => {
             <PermissionConfig
               role={record}
               trigger={
-                <Button
-                  type="link"
-                  size="small"
-                  icon={<SafetyOutlined />}
-                >
+                <Button type="link" size="small" icon={<SafetyOutlined />}>
                   {t("permissions")}
                 </Button>
               }
@@ -237,55 +235,52 @@ const Roles = () => {
         ),
       },
     ],
-    [t, handleDelete, renderFormItems]
+    [t, handleDelete, renderFormItems],
   );
 
   return (
     <>
-      <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t("roles.title")}</h2>
-        <Access code="create">
-          <DMForm<CreateRoleParams>
-            name="roleForm_create"
-            type="Modal"
-            title={t("roles.create")}
-            width={860}
-            trigger={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-              >
-                {t("roles.create")}
-              </Button>
-            }
-            onSubmit={(values, { success, error }) => {
-              createRoleApi(values).then(() => {
-                success();
-                // 刷新表格
-                if (tableRef.current) {
-                  tableRef.current.refresh();
-                }
-              }).catch(() => {
-                error(t("roles.message.createError"));
-              });
-            }}
-          >
-            {renderFormItems(false)}
-          </DMForm>
-        </Access>
-      </div>
       <ProTable<Role, GetRolePageParams>
         ref={tableRef}
         columns={columns}
         request={getRoleListApi}
         size="middle"
-        title={t("roles.list")}
+        title={t("roles.title")}
+        toolBarRender={() => [
+          <Access code="create" key="create">
+            <DMForm<CreateRoleParams>
+              name="roleForm_create"
+              type="Modal"
+              title={t("roles.create")}
+              width={860}
+              trigger={
+                <Button type="primary" icon={<PlusOutlined />}>
+                  {t("roles.create")}
+                </Button>
+              }
+              onSubmit={(values, { success, error }) => {
+                createRoleApi(values)
+                  .then(() => {
+                    success();
+                    // 刷新表格
+                    if (tableRef.current) {
+                      tableRef.current.refresh();
+                    }
+                  })
+                  .catch(() => {
+                    error(t("roles.message.createError"));
+                  });
+              }}
+            >
+              {renderFormItems(false)}
+            </DMForm>
+          </Access>,
+        ]}
         options={{
           showRefresh: true,
           showSizeChanger: true,
         }}
       />
-
     </>
   );
 };
