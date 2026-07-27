@@ -111,7 +111,11 @@ const Users = () => {
       key: "avatar",
       width: 80,
       render: (avatar: string | null) => (
-        <Avatar src={avatar} icon={<UserOutlined />} size="small" />
+        <Avatar
+          src={avatar?.trim() || undefined}
+          icon={<UserOutlined />}
+          size="small"
+        />
       ),
     },
     {
@@ -196,7 +200,7 @@ const Users = () => {
               initialValues={{
                 username: record.username,
                 nickname: record.nickname || "",
-                avatar: record.avatar || "",
+                avatar: record.avatar?.trim() || undefined,
                 status: record.status,
                 email: record.email,
                 isSuper: record.isSuper,

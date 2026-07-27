@@ -106,8 +106,8 @@ const Header = ({ collapsed, onToggle }: HeaderProps) => {
             onClick={(e) => e.preventDefault()}
           >
             <Avatar
-              src={userInfo?.avatar}
-              icon={!userInfo?.avatar && <UserOutlined />}
+              src={userInfo?.avatar?.trim() || undefined}
+              icon={!userInfo?.avatar?.trim() && <UserOutlined />}
               size="default"
             />
             <Text strong>
