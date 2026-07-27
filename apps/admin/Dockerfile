@@ -5,11 +5,17 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate \
     && pnpm config set store-dir /pnpm/store
 
-# 根上下文：仅装 admin 及其依赖
+# 根上下文：装 admin 及其 workspace 依赖（contracts / shared）
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/admin/package.json apps/admin/
+COPY packages/contracts/package.json packages/contracts/
+COPY packages/shared/package.json packages/shared/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile --filter admin...
+
+# admin 通过 tsconfig/vite alias 直接引用 packages 源码
+COPY packages/contracts packages/contracts
+COPY packages/shared packages/shared
 COPY apps/admin apps/admin
 RUN pnpm --filter admin build
 

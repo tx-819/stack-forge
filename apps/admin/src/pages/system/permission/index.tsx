@@ -30,7 +30,7 @@ import Access from "@/components/Access";
 const { TextArea } = Input;
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-const Permission = () => {
+const PermissionPage = () => {
   const { t } = useTranslation();
   const tableRef = useRef<ProTableRef>(null);
   const queryClient = useQueryClient();
@@ -371,4 +371,4 @@ const Permission = () => {
   );
 };
 
-export default Permission;
+export default PermissionPage;

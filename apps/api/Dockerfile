@@ -15,10 +15,16 @@ FROM base AS build
 RUN apk add --no-cache python3 make g++
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/api/package.json apps/api/
+COPY packages/contracts/package.json packages/contracts/
+COPY packages/shared/package.json packages/shared/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile --filter api...
+COPY packages/contracts packages/contracts
+COPY packages/shared packages/shared
 COPY apps/api apps/api
-RUN pnpm --filter api exec prisma generate \
+RUN pnpm --filter @stack-forge/contracts build \
+    && pnpm --filter @stack-forge/shared build \
+    && pnpm --filter api exec prisma generate \
     && pnpm --filter api build
 # 产出仅含 prod 依赖的自包含 node_modules（含已编译的 bcrypt 等原生模块）。
 # 注意：pnpm deploy 遵循 npm pack 规则，会排除被 gitignore 的 dist / src/generated，
