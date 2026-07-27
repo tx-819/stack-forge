@@ -13,7 +13,7 @@ RUN apk add --no-cache openssl tini \
 # 安装原生模块工具链（bcrypt 在 alpine/musl 上可能需源码编译）。
 FROM base AS build
 RUN apk add --no-cache python3 make g++
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.base.json ./
 COPY apps/api/package.json apps/api/
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/shared/package.json packages/shared/

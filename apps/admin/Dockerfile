@@ -6,7 +6,7 @@ RUN corepack enable && corepack prepare pnpm@10.33.0 --activate \
     && pnpm config set store-dir /pnpm/store
 
 # 根上下文：装 admin 及其 workspace 依赖（contracts / shared）
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.base.json ./
 COPY apps/admin/package.json apps/admin/
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/shared/package.json packages/shared/
