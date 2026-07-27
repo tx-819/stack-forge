@@ -54,7 +54,7 @@ export class RoleService {
             where: { id },
         });
         if (!role) {
-            throw new NotFoundException('Role not found');
+            throw new NotFoundException('角色不存在');
         }
         return role;
     }

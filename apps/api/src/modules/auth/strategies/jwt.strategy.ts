@@ -38,7 +38,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             return await this.userService.detail(payload.sub);
         } catch (e) {
             if (e instanceof NotFoundException) {
-                throw new UnauthorizedException('User no longer exists');
+                throw new UnauthorizedException('用户已不存在');
             }
             throw e;
         }

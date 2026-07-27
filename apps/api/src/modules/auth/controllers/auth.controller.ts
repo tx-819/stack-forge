@@ -44,7 +44,7 @@ export class AuthController {
         const isProduction = process.env.NODE_ENV === 'production';
         const ttl = this.configService.get<number>('auth.refreshToken.ttl');
         if (!ttl) {
-            throw new BadRequestException('Refresh token TTL is not set');
+            throw new BadRequestException('未配置刷新令牌有效期');
         }
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
@@ -151,7 +151,7 @@ export class AuthController {
     async refreshToken(@Req() request: Request) {
         const refreshToken = request.cookies?.refreshToken;
         if (!refreshToken) {
-            throw new UnauthorizedException('Refresh token not found');
+            throw new UnauthorizedException('刷新令牌不存在');
         }
         return this.authService.refreshToken(refreshToken);
     }

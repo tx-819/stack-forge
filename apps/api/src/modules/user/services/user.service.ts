@@ -56,7 +56,7 @@ export class UserService {
             where: { id },
         });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException('用户不存在');
         }
         return user;
     }
@@ -193,7 +193,7 @@ export class UserService {
             include: { roles: { include: { role: true } } },
         });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException('用户不存在');
         }
         return user;
     }

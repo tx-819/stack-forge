@@ -52,7 +52,7 @@ export class AuthService {
     async validateUser(username: string, password: string): Promise<any> {
         const user = await this.userService.findOne(username);
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException('用户不存在');
         }
         // 微信等第三方账号无密码，禁止使用账号密码登录
         if (!user.password) {
@@ -68,12 +68,12 @@ export class AuthService {
     async register(registerDto: RegisterDto | CreateUserDto) {
         const user = await this.userService.findOne(registerDto.username);
         if (user) {
-            throw new BadRequestException('User already exists');
+            throw new BadRequestException('用户已存在');
         }
         const defaultRole = await this.roleService.findByCode(ROLE_CODE_USER);
         if (!defaultRole) {
             throw new BadRequestException(
-                `Default role "${ROLE_CODE_USER}" not found`
+                `默认角色「${ROLE_CODE_USER}」不存在`
             );
         }
         const { rolesIds: _rolesIds, ...userData } = registerDto;
@@ -83,7 +83,7 @@ export class AuthService {
         });
         const created = await this.userService.findOne(registerDto.username);
         if (!created) {
-            throw new BadRequestException('User creation failed');
+            throw new BadRequestException('用户创建失败');
         }
         return created;
     }
@@ -92,7 +92,7 @@ export class AuthService {
         const userId =
             await this.tokenService.getUserIdByRefreshToken(refreshToken);
         if (userId == null) {
-            throw new ForbiddenException('Invalid refresh token');
+            throw new ForbiddenException('无效的刷新令牌');
         }
         await this.tokenService.verifyRefreshToken(userId, refreshToken);
         const user = await this.userService.detail(userId);
@@ -117,7 +117,7 @@ export class AuthService {
                 await this.roleService.findByCode(ROLE_CODE_USER);
             if (!defaultRole) {
                 throw new BadRequestException(
-                    `Default role "${ROLE_CODE_USER}" not found`
+                    `默认角色「${ROLE_CODE_USER}」不存在`
                 );
             }
             user = await this.userService.createWechatUser({
@@ -192,7 +192,7 @@ export class AuthService {
         const { email } = sendLoginEmailDto;
         const user = await this.userService.findOneByEmail(email);
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException('用户不存在');
         }
 
         await this.emailService.checkSendRateLimit(email, {

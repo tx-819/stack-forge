@@ -42,7 +42,7 @@ export class PermissionService {
             where: { id },
         });
         if (!permission) {
-            throw new NotFoundException('Permission not found');
+            throw new NotFoundException('权限不存在');
         }
         return permission;
     }

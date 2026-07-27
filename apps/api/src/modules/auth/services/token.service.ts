@@ -54,10 +54,10 @@ export class TokenService {
             `refresh_token:${userId}`
         );
         if (!cachedTokenHash) {
-            throw new UnauthorizedException('Invalid refresh token');
+            throw new UnauthorizedException('无效的刷新令牌');
         }
         if (cachedTokenHash !== tokenHash) {
-            throw new UnauthorizedException('Invalid refresh token');
+            throw new UnauthorizedException('无效的刷新令牌');
         }
     }
 
