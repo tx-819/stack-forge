@@ -8,12 +8,13 @@
 - `apps/admin`：后台前端，React/Vite，构建后由 nginx 提供静态资源
 - `apps/weapp`：uni-app x 小程序项目，需要在 HBuilderX 中单独开发和构建，不参与服务器 Docker 部署
 - `deploy/edge`：服务器最外层 nginx + certbot，用于监听 `80/443`、申请 HTTPS 证书、反向代理到业务容器
+- `deploy/local`：本机构建镜像并用 `docker save` + `scp` 部署到服务器（不上源码）
 
 推荐生产部署方式：
 
-1. 云服务器只负责运行 Docker 容器。
-2. GitHub Actions 构建 `api` 和 `admin` 镜像并推送到 Docker Hub。
-3. GitHub Actions 通过 SSH 登录服务器，拉取新镜像并重启容器。
+1. 云服务器只负责运行 Docker 容器（compose + `.env` + 镜像）。
+2. 在开发本机构建 `api` / `admin` 镜像。
+3. 通过 `deploy/local/deploy.sh` 将镜像打包传到服务器并 `compose up`。
 
 ## 1. 准备云服务器
 
@@ -90,7 +91,7 @@ docker compose version
 
 ### 1.2 配置 Docker 国内镜像加速
 
-国内服务器拉取 Docker Hub 镜像可能较慢或失败，建议配置 registry mirror。
+本机构建或服务器拉取基础镜像（如 `mysql`、`redis`、`nginx`）时，国内访问 Docker Hub 可能较慢，建议配置 registry mirror。
 
 优先使用你自己的阿里云镜像加速地址：
 
@@ -103,7 +104,7 @@ docker compose version
 https://xxxxxx.mirror.aliyuncs.com
 ```
 
-在服务器创建 Docker daemon 配置：
+在服务器（以及需要的话在本机）创建 Docker daemon 配置：
 
 ```bash
 sudo mkdir -p /etc/docker
@@ -170,14 +171,16 @@ sudo mkdir -p /opt/stack-forge/admin
 sudo chown -R $USER:$USER /opt/stack-forge
 ```
 
-GitHub Actions 后续会把：
+本机部署脚本会把对应 app 的 `docker-compose.yml` 与镜像传到：
 
-- `apps/api/docker-compose.yml` 复制到 `/opt/stack-forge/api`
-- `apps/admin/docker-compose.yml` 复制到 `/opt/stack-forge/admin`
+- `/opt/stack-forge/api`
+- `/opt/stack-forge/admin`
+
+**不上源码**；密钥只放在服务器各目录的 `.env`。
 
 ## 4. 配置 SSH 登录云服务器
 
-在部署 Edge Nginx 之前，先确保本地电脑可以通过 SSH 登录云服务器。后续手动复制 `deploy/edge`、GitHub Actions 自动部署都会依赖 SSH。
+在部署 Edge Nginx 与本机 `deploy.sh` 之前，先确保本地电脑可以通过 SSH 登录云服务器。
 
 以下示例中：
 
@@ -266,26 +269,6 @@ ssh stack-forge-server
 scp -r deploy/edge stack-forge-server:/opt/edge
 ```
 
-### 4.5 GitHub Actions 使用同一把私钥
-
-后面配置 GitHub Secrets 时，需要把私钥内容写入 `SSH_PRIVATE_KEY`。
-
-查看私钥内容：
-
-```bash
-cat ~/.ssh/stack_forge_deploy
-```
-
-完整复制输出内容，包括：
-
-```text
------BEGIN OPENSSH PRIVATE KEY-----
-...
------END OPENSSH PRIVATE KEY-----
-```
-
-并确认对应公钥已经在服务器的 `authorized_keys` 中。
-
 ## 5. 部署 Edge Nginx
 
 Edge 是服务器最外层的 nginx，只部署一份。它负责监听宿主机的 `80/443`，终止 TLS，并反向代理到业务容器。
@@ -341,55 +324,31 @@ edge
 
 后续 `api` 和 `admin` 容器都会加入这个网络，并通过容器名互相访问。
 
-## 6. 准备 Docker Hub
+## 6. 准备本机部署配置
 
-GitHub Actions 会把镜像推送到 Docker Hub，因此需要：
+在仓库根目录：
 
-1. 注册或登录 Docker Hub。
-2. 创建 Docker Hub Access Token。
-3. 记下 Docker Hub 用户名和 token。
-
-项目部署时默认使用这些镜像名：
-
-```text
-<DOCKERHUB_USERNAME>/api:<commit_sha>
-<DOCKERHUB_USERNAME>/api:latest
-<DOCKERHUB_USERNAME>/admin:<commit_sha>
-<DOCKERHUB_USERNAME>/admin:latest
+```bash
+cp deploy/local/.env.example deploy/local/.env
 ```
 
-## 7. 配置 GitHub Secrets
+编辑 `deploy/local/.env`：
 
-进入 GitHub 仓库：
-
-```text
-Settings -> Secrets and variables -> Actions -> Repository secrets
+```env
+SSH_HOST=your-server
+SSH_USER=user
+SSH_KEY=~/.ssh/stack_forge_deploy
+DEPLOY_PATH=/opt/stack-forge
+BACKEND_UPSTREAM=http://nest-admin:3000
 ```
 
-添加以下 secrets：
+详见 [`deploy/local/README.md`](deploy/local/README.md)。
 
-公网域名与 HTTPS 证书不再通过 GitHub Secrets 配置，而是在服务器 `/opt/edge/.env` 中配置 `EDGE_DOMAIN`、`API_DOMAIN` 和 `CERTBOT_EMAIL`。
+## 7. 准备服务器上的 api `.env`
 
-| Secret               | 说明                        | 示例                           |
-| -------------------- | --------------------------- | ------------------------------ |
-| `DOCKERHUB_USERNAME` | Docker Hub 用户名           | `your-dockerhub-name`          |
-| `DOCKERHUB_TOKEN`    | Docker Hub Access Token     | `dckr_pat_xxx`                 |
-| `SSH_HOST`           | 云服务器公网 IP 或域名      | `47.x.x.x`                     |
-| `SSH_USER`           | SSH 登录用户                | `ubuntu` / `root`              |
-| `SSH_PRIVATE_KEY`    | SSH 私钥全文                | 包含 `-----BEGIN ... KEY-----` |
-| `DEPLOY_PATH`        | 服务器部署根目录            | `/opt/stack-forge`             |
-| `APP_ENV`            | 后端生产环境变量，多行      | 见下一节                       |
-| `BACKEND_UPSTREAM`   | 后台 nginx 代理到后端的地址 | `http://nest-admin:3000`       |
+脚本部署时**只会 upsert `DOCKER_IMAGE`**（admin 另写 `BACKEND_UPSTREAM`），不会用本机文件整份覆盖服务器密钥。
 
-`SSH_PRIVATE_KEY` 对应的公钥必须已经添加到服务器用户的：
-
-```text
-~/.ssh/authorized_keys
-```
-
-## 8. 配置 APP_ENV
-
-`APP_ENV` 是多行 secret，内容参考 `apps/api/.env.template`。
+因此 **首次部署 api 前**，在服务器创建 `/opt/stack-forge/api/.env`，内容参考 `apps/api/.env.template`。
 
 生产环境示例：
 
@@ -439,28 +398,28 @@ REDIS_URL=redis://redis:6379
 CORS_ORIGINS=https://admin.example.com
 ```
 
-## 9. 首次触发部署
+`DOCKER_IMAGE` 可先不写，首次执行 `deploy.sh api` 时会自动写入。
 
-项目已有 GitHub Actions workflow：
+admin 目录的 `.env` 一般由脚本写入 `DOCKER_IMAGE` 与 `BACKEND_UPSTREAM`，无需事先准备密钥文件。
 
-```text
-.github/workflows/deploy.yml
+## 8. 本机构建并部署
+
+在 monorepo **根目录**执行：
+
+```bash
+./deploy/local/deploy.sh api
+./deploy/local/deploy.sh admin
+# 或一次部署两个：
+./deploy/local/deploy.sh all
 ```
 
-触发方式：
+脚本会：
 
-1. push 到 `main` 分支。
-2. 或在 GitHub Actions 页面手动执行 `Build, push Docker Hub, deploy ECS`。
-
-部署流程会自动完成：
-
-1. 构建 `apps/api` Docker 镜像。
-2. 构建 `apps/admin` Docker 镜像。
-3. 推送镜像到 Docker Hub。
-4. 通过 SSH 复制对应的 `docker-compose.yml` 到服务器。
-5. 在服务器写入 `.env`。
-6. 执行 `docker compose pull`。
-7. 执行 `docker compose up -d --remove-orphans --wait`。
+1. 本机 `docker build`（镜像名形如 `stack-forge/api:<git-sha>`）
+2. `docker save | gzip` 后 scp 到服务器
+3. 同步对应 `docker-compose.yml`
+4. 远程 upsert `.env` 中的 `DOCKER_IMAGE`
+5. `docker load` 后 `docker compose up -d --remove-orphans --wait`
 
 API 容器启动时会自动执行：
 
@@ -470,7 +429,7 @@ prisma migrate deploy
 
 因此数据库迁移会随 API 容器启动自动执行。
 
-## 10. 申请 HTTPS 证书
+## 9. 申请 HTTPS 证书
 
 等 `api` 和 `admin` 容器都启动后，回到服务器执行：
 
@@ -503,7 +462,7 @@ sh ./scripts/verify-https.sh
 sh ./scripts/install-auto-renew-cron.sh --install
 ```
 
-## 11. 检查服务状态
+## 10. 检查服务状态
 
 检查 API：
 
@@ -547,21 +506,19 @@ https://admin.example.com/api/...
 http://nest-admin:3000
 ```
 
-## 12. 后续更新
+## 11. 后续更新
 
-后续正常开发时，推送到 `main` 即可触发自动部署：
+改动后端或前端后，在本机再次执行对应脚本即可：
 
 ```bash
-git push origin main
+./deploy/local/deploy.sh api      # 仅后端
+./deploy/local/deploy.sh admin    # 仅后台前端
+./deploy/local/deploy.sh all      # 两者都部署
 ```
 
-workflow 会根据改动路径决定部署哪些应用：
+不需要把源码放到服务器，也不依赖 Docker Hub / GitHub Actions。
 
-- 只改 `apps/api/**`：部署后端
-- 只改 `apps/admin/**`：部署后台前端
-- 改 `pnpm-lock.yaml`、`pnpm-workspace.yaml`、根 `package.json` 或部署 workflow：两个应用都会部署
-
-## 13. 常见问题
+## 12. 常见问题
 
 ### 访问后台 502
 
@@ -596,7 +553,7 @@ docker compose logs --tail=200 api
 
 重点检查：
 
-- `APP_ENV` 是否缺少必填变量
+- 服务器 `.env` 是否缺少必填变量
 - `MYSQL_HOST` 是否为 `mysql`
 - `REDIS_URL` 是否为 `redis://redis:6379`
 - MySQL 密码是否和 `.env` 一致
@@ -622,7 +579,7 @@ docker compose logs --tail=200 api
 
 云服务器安全组不要对公网开放 `3306` 和 `6379`。如果需要本地连接数据库，使用 SSH 隧道。
 
-## 14. 最短部署顺序
+## 13. 最短部署顺序
 
 ```text
 1. 购买云服务器，开放 22/80/443。
@@ -631,9 +588,8 @@ docker compose logs --tail=200 api
 4. 创建 /opt/stack-forge/api 和 /opt/stack-forge/admin。
 5. 配置本地到云服务器的 SSH 登录。
 6. 上传 deploy/edge 到 /opt/edge，并启动 docker compose up -d。
-7. 配置 Docker Hub。
-8. 配置 GitHub Secrets。
-9. push main 或手动 Run GitHub Actions。
-10. 在 /opt/edge 执行 setup-https.sh。
-11. 访问 https://admin.example.com。
+7. 配置 deploy/local/.env；在服务器准备 api/.env。
+8. 本机执行 ./deploy/local/deploy.sh all。
+9. 在 /opt/edge 执行 setup-https.sh。
+10. 访问 https://admin.example.com。
 ```

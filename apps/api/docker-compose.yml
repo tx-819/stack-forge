@@ -1,4 +1,4 @@
-# 服务器侧 compose：与 workflow 写入的 .env 配合（DOCKER_IMAGE、MYSQL_* 等）。
+# 服务器侧 compose：与本机 deploy/local/deploy.sh 及服务器 .env 配合（DOCKER_IMAGE、MYSQL_* 等）。
 #
 # 宿主机端口：
 #   - api 仍不映射宿主机端口（经 edge 反代）。
