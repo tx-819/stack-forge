@@ -19,6 +19,7 @@
       "@stack-forge/contracts": ["../../packages/contracts/dist/index.d.ts"]
     },
     "incremental": false,
+    "preserveWatchOutput": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,

@@ -8,15 +8,17 @@ import setupSwagger from './swagger';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
+    // Disable Nest's built-in logger: bufferLogs + useLogger(pino) would still
+    // flush InstanceLoader / RoutesResolver INFO and drown concurrently output.
+    // App / HTTP logs still go through nestjs-pino (injected Logger + pinoHttp).
     const app = await NestFactory.create(AppModule, new ExpressAdapter(), {
-        bufferLogs: true,
+        logger: false,
     });
     const config = app.get(ConfigService);
     const logger = app.get(Logger);
     const env = config.get('app.env');
     const port = config.get('app.port');
     const host = config.get('app.host');
-    app.useLogger(logger);
     app.use(cookieParser());
 
     const corsOrigins = config.get<string[]>('app.corsOrigins') ?? [];

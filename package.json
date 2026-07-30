@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "dev": "pnpm -r --parallel --filter './apps/*' dev",
+    "dev": "concurrently -n admin,api -c green,blue --pad-prefix \"pnpm --filter admin dev\" \"pnpm --filter api dev\"",
     "dev:server": "pnpm --filter api dev",
     "dev:web": "pnpm --filter admin dev",
     "start:server": "pnpm --filter api start",
@@ -26,5 +26,8 @@
       "prisma",
       "unrs-resolver"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4"
   }
 }

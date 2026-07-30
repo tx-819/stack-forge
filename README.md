@@ -35,14 +35,15 @@ pnpm install
 
 ## 常用脚本（根目录运行）
 
-| 命令                | 说明                                             |
-| ------------------- | ------------------------------------------------ |
-| `pnpm dev:server`   | 启动后端开发服务（默认 `http://localhost:3000`） |
-| `pnpm dev:web`      | 启动前端开发服务（默认 `http://localhost:5173`） |
-| `pnpm build:server` | 构建后端                                         |
-| `pnpm build:web`    | 构建前端                                         |
-| `pnpm build`        | 递归构建所有工作区项目                           |
-| `pnpm lint`         | 递归执行各项目 lint                              |
+| 命令                | 说明                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| `pnpm dev`          | 用 concurrently 同时启动 api + admin（带颜色前缀区分日志）   |
+| `pnpm dev:server`   | 仅启动后端开发服务（默认 `http://localhost:3000`）           |
+| `pnpm dev:web`      | 仅启动前端开发服务（默认 `http://localhost:5173`）           |
+| `pnpm build:server` | 构建后端                                                     |
+| `pnpm build:web`    | 构建前端                                                     |
+| `pnpm build`        | 递归构建所有工作区项目                                       |
+| `pnpm lint`         | 递归执行各项目 lint                                          |
 
 也可用 `pnpm --filter <包名> <脚本>` 直接操作单个项目：
 
@@ -51,11 +52,19 @@ pnpm install
 
 ## 前后端联调
 
-前端 `apps/admin/vite.config.ts` 已将 `/api` 代理到 `http://localhost:3000`，因此先启动后端再启动前端即可直接联调：
+前端 `apps/admin/vite.config.ts` 已将 `/api` 代理到 `http://localhost:3000`。推荐一条命令联调：
 
 ```bash
-pnpm dev:server   # 终端 1
-pnpm dev:web      # 终端 2
+pnpm dev
+```
+
+同一终端并行跑 admin 与 api，日志带绿色 `[admin]` / 蓝色 `[api]` 前缀。api 已关闭 Nest 框架启动刷屏，并用 `--preserveWatchOutput` 避免 watch 清屏把 admin 日志冲掉。`Ctrl+C` 会一并退出。
+
+若只想单独起一个服务：
+
+```bash
+pnpm dev:server
+pnpm dev:web
 ```
 
 ## 移动端
