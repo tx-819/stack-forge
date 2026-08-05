@@ -1,5 +1,4 @@
 import { registerAs } from '@nestjs/config';
-import { parseCorsOrigins } from './parse-cors-origins';
 import { APP_ENVIRONMENT } from 'src/app/enums/app.enum';
 
 export default registerAs('app', () => ({
@@ -10,5 +9,4 @@ export default registerAs('app', () => ({
     version: process.env.APP_VERSION || '1.0.0',
     logLevel: process.env.APP_LOG_LEVEL || 'info',
     frontendUrl: process.env.APP_FRONTEND_URL || 'http://localhost:3000',
-    corsOrigins: parseCorsOrigins(process.env.CORS_ORIGINS),
 }));

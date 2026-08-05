@@ -32,8 +32,8 @@
 
 ## 同机联调（react-admin + nest-admin）
 
-- **相对路径 `/api`（推荐默认）**：在 `react-admin` 部署 Secret 中设置 **`BACKEND_UPSTREAM=http://nest-admin:3000`**；浏览器访问 `https://<EDGE_DOMAIN>/api/...`。
-- **API 子域名**：浏览器直连 `https://<API_DOMAIN>` 时，在 **`nest-admin`** 环境变量中设置 **`CORS_ORIGINS=https://<EDGE_DOMAIN>`**（多源用英文逗号分隔）。
+- **相对路径 `/api`（推荐默认）**：在 `react-admin` 部署 Secret 中设置 **`BACKEND_UPSTREAM=http://nest-admin:3000`**；浏览器访问 `https://<EDGE_DOMAIN>/api/...`（同源，无需 CORS）。
+- **API 子域名**：在 edge 为 API 域名反代到 **`nest-admin:3000`**；浏览器直连独立 API 域名时需自行处理跨域（本服务未启用 CORS）。
 
 ## SAN 证书（可选）
 

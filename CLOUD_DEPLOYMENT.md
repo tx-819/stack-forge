@@ -142,7 +142,6 @@ BACKEND_UPSTREAM=http://nest-admin:3000
 MYSQL_HOST=mysql
 REDIS_URL=redis://redis:6379
 APP_FRONTEND_URL=https://admin.example.com
-# 独立 API 域名时：CORS_ORIGINS=https://admin.example.com
 ```
 
 admin 的 `.env` 由脚本自动写入，无需事先准备。
