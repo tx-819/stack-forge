@@ -1,9 +1,9 @@
 {
-  "name": ".",
+  "name": "weapp",
   "type": "module",
-  "version": "2.0.0",
+  "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@9.9.0",
+  "prettier": false,
   "license": "MIT",
   "engines": {
     "node": ">=20.19.0 || >=22.12.0 || >=24.0.0"
@@ -29,7 +29,7 @@
     "dev:quickapp-webview": "uni -p quickapp-webview",
     "dev:quickapp-webview-huawei": "uni -p quickapp-webview-huawei",
     "dev:quickapp-webview-union": "uni -p quickapp-webview-union",
-    "build": "uni build",
+    "build": "uni build -p mp-weixin",
     "build:app": "uni build -p app",
     "build:app-android": "uni build -p app-android",
     "build:app-ios": "uni build -p app-ios",
@@ -49,23 +49,13 @@
     "build:quickapp-webview": "uni build -p quickapp-webview",
     "build:quickapp-webview-huawei": "uni build -p quickapp-webview-huawei",
     "build:quickapp-webview-union": "uni build -p quickapp-webview-union",
-    "type-check": "vue-tsc --noEmit",
+    "typecheck": "vue-tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "lint:docs": "eslint docs --ext .js,.ts,.vue,.mts,.cts --ignore-pattern '**/*.md'",
-    "prepare": "husky install",
-    "commit": "git-cz",
-    "release-major": "standard-version --release-as major",
-    "release-minor": "standard-version --release-as minor",
-    "release-patch": "standard-version --release-as patch",
-    "alova-gen": "alova gen -f",
-    "docs:dev": "pnpm -F docs docs:dev",
-    "docs:build": "pnpm run build:h5 && pnpm -F docs docs:build",
-    "docs:preview": "pnpm -F docs docs:preview"
+    "alova-gen": "alova gen -f"
   },
   "dependencies": {
     "@alova/adapter-uniapp": "^2.0.16",
-    "@alova/mock": "^2.0.20",
     "@alova/shared": "^1.3.2",
     "@dcloudio/uni-app": "3.0.0-4080520251106001",
     "@dcloudio/uni-app-harmony": "3.0.0-4080520251106001",
@@ -83,6 +73,8 @@
     "@dcloudio/uni-mp-weixin": "3.0.0-4080520251106001",
     "@dcloudio/uni-mp-xhs": "3.0.0-4080520251106001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-4080520251106001",
+    "@stack-forge/contracts": "workspace:*",
+    "@stack-forge/shared": "workspace:*",
     "@vueuse/core": "^11.0.3",
     "@wot-ui/router": "^1.1.2",
     "@wot-ui/ui": "^2.3.1",
@@ -96,8 +88,6 @@
   },
   "devDependencies": {
     "@alova/wormhole": "^1.5.0",
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
     "@dcloudio/types": "^3.4.12",
     "@dcloudio/uni-automator": "3.0.0-4080520251106001",
     "@dcloudio/uni-cli-shared": "3.0.0-4080520251106001",
@@ -122,27 +112,13 @@
     "@unocss/eslint-config": "^66.5.6",
     "@vue/runtime-core": "^3.4.38",
     "@vue/tsconfig": "^0.5.1",
-    "commitizen": "^4.3.1",
-    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9.39.1",
-    "git-cz": "^4.9.0",
-    "husky": "^8.0.3",
-    "lint-staged": "^15.2.9",
     "miniprogram-api-typings": "^3.12.3",
     "sass": "^1.99.0",
-    "standard-version": "^9.5.0",
     "typescript": "~5.5.4",
     "unocss": "66.0.0",
     "unplugin-auto-import": "^0.18.2",
     "vite": "^5.2.8",
     "vue-tsc": "^2.0.29"
-  },
-  "pnpm": {
-    "overrides": {
-      "unconfig": "7.3.2"
-    }
-  },
-  "lint-staged": {
-    "*": "eslint --fix"
   }
 }

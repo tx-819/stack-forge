@@ -4,7 +4,11 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@stack-forge/contracts": ["../../packages/contracts/src/index.ts"],
+      "@stack-forge/contracts/*": ["../../packages/contracts/src/*"],
+      "@stack-forge/shared": ["../../packages/shared/src/index.ts"],
+      "@stack-forge/shared/*": ["../../packages/shared/src/*"]
     },
     "types": [
       "@dcloudio/types",
@@ -17,7 +21,6 @@
     "sourceMap": true
   },
   "vueCompilerOptions": {
-    // 调整 Volar（Vue 语言服务工具）解析行为，用于为 uni-app 组件提供 TypeScript 类型
     "plugins": ["@uni-helper/uni-types/volar-plugin"]
   },
   "include": [

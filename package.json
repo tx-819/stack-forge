@@ -4,12 +4,15 @@
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "dev": "concurrently -n admin,api -c green,blue --pad-prefix \"pnpm --filter admin dev\" \"pnpm --filter api dev\"",
+    "dev": "concurrently -n admin,api,weapp -c green,blue,magenta --pad-prefix \"pnpm --filter admin dev\" \"pnpm --filter api dev\" \"pnpm --filter weapp dev:mp-weixin\"",
     "dev:server": "pnpm --filter api dev",
     "dev:web": "pnpm --filter admin dev",
+    "dev:weapp": "pnpm --filter weapp dev:mp-weixin",
+    "dev:weapp:h5": "pnpm --filter weapp dev:h5",
     "start:server": "pnpm --filter api start",
     "build:server": "pnpm --filter api build",
     "build:web": "pnpm --filter admin build",
+    "build:weapp": "pnpm --filter weapp build",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
@@ -25,7 +28,10 @@
       "msgpackr-extract",
       "prisma",
       "unrs-resolver"
-    ]
+    ],
+    "overrides": {
+      "unconfig": "7.3.2"
+    }
   },
   "devDependencies": {
     "concurrently": "^10.0.4"

@@ -7,7 +7,6 @@ definePage({
   },
 })
 
-const router = useRouter()
 const {
   theme,
   toggleTheme,
@@ -29,20 +28,8 @@ const isDark = computed({
   },
 })
 
-// 页面跳转方法
-function navigateTo(name: string) {
-  router.push({
-    name,
-  })
-}
-
-// 处理主题色选择
 function handleThemeColorSelect(option: any) {
   selectThemeColor(option)
-}
-
-function openUrl(url: string) {
-  window.open(url, '_blank')
 }
 </script>
 
@@ -50,13 +37,13 @@ function openUrl(url: string) {
   <view class="box-border py-3">
     <view class="mx-3 box-border rounded-3 px-4 py-6 text-center wot-bg-filled-oppo">
       <text class="mb-3 block text-left text-5 font-bold wot-text-text-main">
-        Wot Starter
+        Stack Forge
       </text>
       <text class="mb-3 block text-left text-30rpx leading-relaxed wot-text-text-secondary">
-        ⚡️ 基于 vitesse-uni-app 由 vite & uni-app 驱动的、深度整合 Wot UI 组件库的快速启动模板
+        基于 uni-app、Vue 3 与 Wot UI 的移动端应用，接入 stack-forge 后端与共享类型。
       </text>
       <text class="block text-left text-3 leading-relaxed wot-text-text-auxiliary">
-        背靠 Uni Helper、Wot UI 团队，告别 HBuilderX ，拥抱现代前端开发工具链
+        在仓库根目录运行 pnpm dev:weapp:h5 或 pnpm dev:weapp 开始开发。
       </text>
     </view>
 
@@ -82,25 +69,6 @@ function openUrl(url: string) {
       </wd-cell-group>
     </demo-block>
 
-    <demo-block title="工具链介绍" transparent>
-      <wd-cell-group border custom-class="rounded-2! overflow-hidden">
-        <wd-cell title="🧩 WotUI组件库" is-link @click="openUrl('https://wot-ui.cn/')" />
-        <!-- <wd-cell title="🧠 Agent Skills" is-link @click="navigateTo('skills')" /> -->
-
-        <wd-cell title="🚦 Router 路由管理" is-link @click="navigateTo('router')" />
-        <wd-cell title="🌐 Alova 网络请求" is-link @click="navigateTo('request')" />
-        <wd-cell title="🎨 Icon 图标" is-link @click="navigateTo('icon')" />
-        <wd-cell title="✨ Unocss 原子化" is-link @click="navigateTo('styles')" />
-        <wd-cell title="🍍 Pinia 持久化" is-link @click="navigateTo('pinia')" />
-        <wd-cell title="💬 Fedback 反馈组件" is-link @click="navigateTo('feedback')" />
-        <!-- <wd-cell title="🌱 CreateUni 脚手架" is-link @click="navigateTo('create-uni') " /> -->
-        <wd-cell title="🔄 CI/CD 持续集成" is-link @click="navigateTo('ci')" />
-        <wd-cell title="🦾  uni-ku/root" is-link @click="navigateTo('root')" />
-        <wd-cell title="📊 uni-echarts" is-link @click="navigateTo('echarts')" />
-      </wd-cell-group>
-    </demo-block>
-
-    <!-- 主题色选择 ActionSheet -->
     <wd-action-sheet
       v-model="showThemeColorSheet"
       title="选择主题色"

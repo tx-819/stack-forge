@@ -1,0 +1,2 @@
+# weapp 使用 ESLint（@uni-helper/eslint-config）格式化，勿用 Prettier 覆盖
+apps/weapp/**

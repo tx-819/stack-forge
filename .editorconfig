@@ -1,0 +1,15 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{js,jsx,ts,tsx,vue,mjs,cjs,json,yml,yaml}]
+indent_size = 2
+
+# NestJS / api 习惯 4 空格（Prettier tabWidth: 4）
+[apps/api/**/*.{js,ts}]
+indent_size = 4
