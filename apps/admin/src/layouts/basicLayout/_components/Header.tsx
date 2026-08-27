@@ -78,8 +78,15 @@ const Header = ({ collapsed, onToggle }: HeaderProps) => {
 
   return (
     <AntHeader
-      className="flex items-center justify-between"
-      style={{ background: colorBgContainer }}
+      className="flex items-center justify-between shrink-0"
+      style={{
+        background: colorBgContainer,
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+        width: "100%",
+        paddingInline: 16,
+      }}
     >
       <div className="flex items-center gap-4">
         {collapsed ? (

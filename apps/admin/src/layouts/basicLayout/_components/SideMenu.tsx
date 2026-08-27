@@ -47,8 +47,8 @@ const SideMenu = () => {
 
   return (
     <Menu
-      theme="light"
       mode="inline"
+      style={{ border: 'none' }}
       items={displayItems}
       disabled={menuLoading}
       inlineCollapsed={collapsed}

@@ -1,9 +1,13 @@
 /**
  * 亮色/暗色切换 - 从点击位置圆形扩散动画
- * 基于 View Transitions API + Web Animations API，与 themeStore 的 setTailwindTheme 对接
+ * 基于 View Transitions API + clip-path
+ *
+ * 注意：clip-path 的 at x y 是相对于被裁剪元素（::view-transition-*）的盒子，
+ * 不是直接等于鼠标的 clientX/Y。用「视口百分比」定位，才能和点击位置对齐。
  */
 
 import { useCallback } from "react";
+import { flushSync } from "react-dom";
 import { getSystemTheme, useThemeStore } from "@/store/themeStore";
 import type { ThemeMode } from "@/store/themeStore";
 
@@ -25,6 +29,7 @@ function removeCSS(id: string): void {
   document.getElementById(id)?.remove();
 }
 
+/** 关闭 UA 默认淡入淡出，并用 z-index 控制明暗切换时新旧层叠顺序 */
 const viewTransitionStyle = `
 @keyframes keepAlive { 100% { z-index: -1 } }
 
@@ -42,9 +47,6 @@ const viewTransitionStyle = `
 ::view-transition-new(root) { z-index: 1; }
 `;
 
-/**
- * 注入 View Transition 全局样式，页面加载时执行一次（如在 Layout 或根组件 useEffect 中调用）
- */
 export function injectViewTransitionStyle(): void {
   if (typeof document.startViewTransition === "function") {
     injectCSS(viewTransitionStyle, STYLE_ID_VIEW_TRANSITION);
@@ -52,25 +54,40 @@ export function injectViewTransitionStyle(): void {
 }
 
 export interface ThemeTransitionOptions {
-  /** 动画结束后将偏好设为「跟随系统」 */
   setPreferenceToSystem?: boolean;
 }
 
 /**
- * 带圆形扩散的主题切换。state 会在 transition 的 callback 内同步更新，避免截「旧」帧时 React 已按新主题重渲染。
- * @param event 点击事件，用于取 clientX/clientY
- * @param isCurrentlyDark 当前是否为暗色（即将切到亮色则为 true）
- * @param options setPreferenceToSystem 为 true 时，下一主题为 getSystemTheme()，且动画结束后将 theme 设为 "system"
+ * 把鼠标视口坐标换成 clip-path 可用的百分比圆心。
+ * circle(... at X% Y%) 的百分比相对「被裁剪元素」宽高；
+ * VT 的 root 伪元素覆盖视口，因此 client / inner* 100% 才能对准点击点。
  */
+function toClipOrigin(clientX: number, clientY: number) {
+  const w = window.innerWidth || 1;
+  const h = window.innerHeight || 1;
+  return {
+    x: `${(clientX / w) * 100}%`,
+    y: `${(clientY / h) * 100}%`,
+    // 半径用超大百分比，保证盖住视口任意角落
+    endRadius: "150%",
+  };
+}
+
+function readClientPoint(
+  event: React.MouseEvent<HTMLElement, MouseEvent> | MouseEvent,
+): { x: number; y: number } | null {
+  // 优先用事件自身的 clientX/Y（antd 下拉里比 nativeEvent 更稳）
+  const x = event.clientX;
+  const y = event.clientY;
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return { x, y };
+}
+
 export function toggleThemeWithTransition(
   event: React.MouseEvent<HTMLElement, MouseEvent> | MouseEvent,
   isCurrentlyDark: boolean,
   options?: ThemeTransitionOptions,
 ): void {
-  const nativeEvent =
-    event && "nativeEvent" in event
-      ? (event as React.MouseEvent<HTMLElement>).nativeEvent
-      : (event as MouseEvent);
   const nextTheme: ThemeMode = options?.setPreferenceToSystem
     ? getSystemTheme()
     : isCurrentlyDark
@@ -80,45 +97,51 @@ export function toggleThemeWithTransition(
     ? "system"
     : nextTheme;
 
-  if (!nativeEvent || typeof document.startViewTransition !== "function") {
+  const point = readClientPoint(event);
+  const canAnimate =
+    point &&
+    typeof document.startViewTransition === "function" &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!canAnimate) {
     useThemeStore.getState().setTheme(preferenceAfterTransition);
     return;
   }
 
-  const { clientX: x, clientY: y } = nativeEvent;
-  const endRadius = Math.hypot(
-    Math.max(x, innerWidth - x),
-    Math.max(y, innerHeight - y),
-  );
+  const { x, y, endRadius } = toClipOrigin(point.x, point.y);
+  const clipPath = [
+    `circle(0px at ${x} ${y})`,
+    `circle(${endRadius} at ${x} ${y})`,
+  ];
+
+  injectViewTransitionStyle();
 
   const transition = document.startViewTransition(() => {
-    useThemeStore.getState().setTheme(preferenceAfterTransition);
+    flushSync(() => {
+      useThemeStore.getState().setTheme(preferenceAfterTransition);
+    });
   });
 
   transition.ready.then(() => {
-    const clipPath = [
-      `circle(0px at ${x}px ${y}px)`,
-      `circle(${endRadius}px at ${x}px ${y}px)`,
-    ];
-
     injectCSS("* { transition: none !important }", STYLE_ID_DISABLE_TRANSITION);
 
-    document.documentElement
-      .animate(
-        {
-          clipPath: isCurrentlyDark ? [...clipPath].reverse() : clipPath,
-        },
-        {
-          duration: DURATION_MS,
-          easing: "ease-in",
-          pseudoElement: isCurrentlyDark
-            ? "::view-transition-old(root)"
-            : "::view-transition-new(root)",
-        },
-      )
-      .addEventListener("finish", () => {
-        removeCSS(STYLE_ID_DISABLE_TRANSITION);
-      });
+    // 亮→暗：展开 new；暗→亮：收缩 old（配合上面的 z-index 翻转）
+    const animation = document.documentElement.animate(
+      {
+        clipPath: isCurrentlyDark ? [...clipPath].reverse() : clipPath,
+      },
+      {
+        duration: DURATION_MS,
+        easing: "ease-in",
+        pseudoElement: isCurrentlyDark
+          ? "::view-transition-old(root)"
+          : "::view-transition-new(root)",
+      },
+    );
+
+    animation.finished.finally(() => {
+      removeCSS(STYLE_ID_DISABLE_TRANSITION);
+    });
   });
 }
 

@@ -42,8 +42,10 @@ const BasicLayout = () => {
           collapsed={collapsed}
           onToggle={() => setCollapsed(!collapsed)}
         />
-        <Content className="m-6 overflow-hidden">
-          <MenuRouteGuard />
+        <Content
+          className="p-4 overflow-hidden"
+        >
+            <MenuRouteGuard />
         </Content>
       </Layout>
     </Layout>

@@ -44,9 +44,9 @@ const ThemeSwitcher = () => {
     );
   };
 
-  const handleThemeChange: MenuProps["onSelect"] = (info) => {
-    const key = info.key;
-    const event = info.domEvent as React.MouseEvent<HTMLElement>;
+  // 与 ant-design 官网一致用 onClick
+  const handleThemeClick: MenuProps["onClick"] = ({ key, domEvent }) => {
+    const event = domEvent as React.MouseEvent<HTMLElement>;
 
     if (key === "system") {
       const systemTheme = getSystemTheme();
@@ -61,12 +61,12 @@ const ThemeSwitcher = () => {
     }
 
     const targetTheme = key as "light" | "dark";
-    if (targetTheme === theme) return; // 已是该偏好，无需操作
+    if (targetTheme === theme) return;
 
     if (targetTheme !== effectiveTheme) {
       toggleThemeWithTransition(event, effectiveTheme === "dark");
     } else {
-      setTheme(targetTheme); // 从 system 锁定为当前效果
+      setTheme(targetTheme);
     }
   };
 
@@ -76,7 +76,7 @@ const ThemeSwitcher = () => {
         items: themeMenuItems,
         selectable: true,
         selectedKeys: [theme],
-        onSelect: handleThemeChange,
+        onClick: handleThemeClick,
       }}
       placement="bottomRight"
     >
